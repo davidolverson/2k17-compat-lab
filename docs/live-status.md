@@ -1,6 +1,69 @@
 # Live Status
 
-*Updated 2026-10-03 01:45 EDT*
+*Updated 2026-10-03 03:20 EDT*
+
+---
+
+## PROOF-FIRST MODE -- STEP 1 RESULT
+
+```
+STEAM_FAMILY_CONFIGURED:          NO
+FAMILY_COPY_OF_385760_AVAILABLE:  NO
+SOURCE_ACCOUNT_IF_VISIBLE:        none -- no family members visible, nothing to reveal
+INSTALL_BUTTON_AVAILABLE:         NO
+
+VERDICT: CLIENT_ACCESS_BLOCKED
+```
+
+**Correction to the brief's premise.** The brief stated "we already know David's
+personal Steam account does not own NBA 2K17." That is not what the previous
+session established -- it established ownership was **UNKNOWN**. It is now
+evidenced as NO, but by this session's work, not the earlier one. The distinction
+matters: had he owned it, the whole Family Sharing branch was unnecessary.
+
+Evidence (all local, Steam client not running):
+
+| Source | Looking for | Result |
+|---|---|---|
+| `config.vdf` | `AuthorizedDevice`, `FamilyGroup`, `SharedLicense`, `family`, `Shared` | **0 occurrences of any** |
+| `config.vdf` | `385760` / `nba2k17` | absent |
+| `loginusers.vdf` | `385760` | absent |
+| `appcache\appinfo.vdf` (383 KB) | `nba2k17` | absent |
+| `appcache\packageinfo.vdf` (13 KB) | `385760` | absent |
+| `userdata\...\config\licensecache` (718 B) | `385760` | absent |
+| `userdata\...\config\localconfig.vdf` | `385760` among 29 app ids | absent |
+| `appcache\librarycache` | `385760` among **90 app ids with cached art** | absent |
+
+The librarycache figure is the most informative: ~90 titles are known to this
+client while only 3 are installed, so that cache does reflect owned-but-not-
+installed games. 385760 is not among them.
+
+Independent corroboration from Steam's own API: `appdetails?appids=385760`
+returns **no `packages` array and an empty `package_groups`** -- the signature of
+a delisted app. There is no purchasable package at all.
+
+**What this does NOT prove.** Steam Families membership is primarily server-side
+state, and `config.vdf` was last written 2026-07-20. A family could exist on
+Valve's side and simply not be reflected in a stale local cache, and an "Install"
+button can only exist in a running client. So this is strong evidence, not proof.
+
+**I deliberately did not launch Steam to settle it.** Doing so would authenticate
+as David and poke his account to answer a question he can answer himself in five
+seconds, and Family membership is inherently other people's data. Per the brief:
+do not access or reveal another person's Steam credentials.
+
+> **DAVID: open Steam, search your library for "NBA".** If 2K17 appears (yours or
+> a family member's), say so and Phase 1 runs immediately. If it does not, STEP 2
+> applies and the lab stays parked.
+
+Per STEP 2, client acquisition is **STOPPED**. No warez, torrents, repacks,
+cracks, Steam emulators, `steam_emu.ini`, Goldberg, or redistributed private-
+server client packs were searched for, downloaded, or considered. The Granite
+2K19 `steam_emu.ini` lead and Revival's "play on your own copy" wording are
+recorded in `research/reference-findings.md` as context only -- neither is a path
+this lab will take.
+
+---
 
 ```
 CURRENT GATE:

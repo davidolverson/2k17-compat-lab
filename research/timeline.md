@@ -39,6 +39,38 @@ All times UTC. Every entry is an action actually taken, with its observed result
 | 05:39 | `cleanup.ps1` on the partial run | Recovered it completely -- validating the incremental-state fix, since the same crash shape earlier left invisible orphans |
 | 05:40 | **Final full cycle**: setup -> run -> verify -> cleanup | `PROBE_SELF_TEST_PASS` 12/12; TLSv1.2 / ECDHE-RSA-AES128-GCM-SHA256; HTTP 404 round trip; `CLEANUP_VERIFIED_CLEAN`; **hosts byte-exact (`4E561C8E...`), BOM intact, 0 lab certs, 443 free, DNS back to `192.81.242.208`** |
 
+## 2026-10-03 -- Session 2: proof-first mode, STEP 1, instrumentation hardening
+
+| UTC | Action | Result |
+|---|---|---|
+| 06:35 | STEP 1: audit Steam Families + ownership across 8 local sources | **No family configured** (0 markers in `config.vdf`); 385760 absent from every cache incl. a 90-entry librarycache. `CLIENT_ACCESS_BLOCKED` |
+| 06:38 | `appdetails?appids=385760` packages check | **No `packages` array, empty `package_groups`** -- delisted signature; nothing purchasable |
+| 06:40 | Decided NOT to launch Steam as David | Family membership is other people's data; he can answer in 5s. Asked instead |
+| 06:42 | Test pktmon loopback capability | First grep said 0 loopback hits -> nearly reported "pktmon is blind to loopback" |
+| 06:44 | **Re-checked that result** | **My grep was wrong**: `-SimpleMatch` with an escaped regex searched for literal backslashes. pktmon DOES capture loopback: 7 `127.0.0.1` hits, 5 matching `.1.443`, beside 23,633 real-adapter `.443:` lines |
+| 06:47 | Tried ETW `Microsoft-Windows-Kernel-Network` for PID attribution | Session started, 688 KB ETL, but `tracerpt` produced nothing. **Abandoned as a rabbit hole** -- a simpler mechanism existed |
+| 06:50 | Built `capture.ps1` (pktmon wrapper, start/stop/status) | Verified behaviour + loopback caveat documented in the file |
+| 06:52 | Instrumentation fix: attribution resolved per-connection by spawning powershell | **BROKEN**: ~1-5s process startup added a visible 5s stall and the connection was gone before the query ran. Every request `UNRESOLVED` -- the exact failure it was meant to prevent |
+| 06:57 | Replaced with ONE long-lived poller streaming the TCP table; in-memory lookups | Negative control attributed to `powershell`, but the record landed AFTER the request |
+| 07:00 | Fix: resolve **before responding** | While the request is held open the client cannot exit and its socket is in the table, so resolution is guaranteed possible. Both controls attributed |
+| 07:03 | Added `clientPath` + `pathLooksLikeSteamInstall` | **Regression: everything `UNRESOLVED` again** |
+| 07:06 | Dumped the actually-generated poller script | **Windows paths with single backslashes made the NDJSON invalid** (`\P`), `JSON.parse` threw, and the catch silently discarded EVERY row while the poller looked healthy |
+| 07:09 | Replaced the wire format with pipe-delimited text; count + surface malformed rows and poller stderr | No escaping layers left to get wrong |
+| 07:13 | Added a startup-readiness gate to `run.ps1` | **It immediately caught a flaw in my own ready signal**: ready only fired on a parsed row, but an idle listener produces none, so it could never fire. Fixed with a per-cycle `HB` heartbeat |
+| 07:16 | **Final controls, both directions** | NEG: `levelB=False attributedTo=powershell path=...powershell.exe`. POS (node.exe renamed `NBA2K17.exe`): `levelB=True attributedTo=NBA2K17` **and `pathLooksLikeSteamInstall=False`**, flagging the fake |
+| 07:18 | `cleanup.ps1` | `CLEANUP_VERIFIED_CLEAN`; poller self-terminated with its parent (no orphan) |
+| 07:20 | **Destroyed every synthetic artifact** | Fake `NBA2K17.exe` deleted; all probe logs purged. 3 records had carried `levelBEvidence:true` from a renamed binary and must never be mistakable for real evidence. Only source-code string matches remain |
+| 07:21 | Machine verified | hosts byte-exact `4E561C8E...`, 0 lab certs, 443 free, DNS `192.81.242.208`, vault empty, no pktmon filters |
+
+### Session 2 lesson worth keeping
+
+A process **name is not an identity**. A copy of `node.exe` renamed
+`NBA2K17.exe`, sitting in a temp directory, satisfied the Level B test and wrote
+`levelBEvidence: true` to disk. The gate is defined by process name, so the
+record now also carries the executable path and a `pathLooksLikeSteamInstall`
+flag. Had that log survived into a fixture, it would have been a fabricated
+proof of the exact thing the whole project is trying to establish.
+
 ### Session 1 close
 
 Machine is in its original state. Lab is built and verified. The feasibility gate

@@ -128,7 +128,7 @@ if ($bound) {
         if ($_.Exception.InnerException) { $tlsDetail += " / inner: $($_.Exception.InnerException.Message)" }
     }
 }
-Add-Check 'tls.handshake.selftest' $tlsOk $tlsDetail
+Add-Check 'tls.established.selftest' $tlsOk $tlsDetail
 Add-Check 'http.roundtrip.selftest' $httpOk $httpDetail
 
 # 7. Request was actually LOGGED. An unlogged request is a blind instrument.

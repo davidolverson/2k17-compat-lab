@@ -82,10 +82,15 @@ if ($state -ne $null -and $state.probe -ne $null) {
     if (Test-Path $log) {
         $recs = Get-Content $log
         Write-Host ("log records     : {0}" -f $recs.Count)
-        foreach ($k in 'tcp.connect','tls.handshake','tls.clientError','http.request') {
+        foreach ($k in 'tcp.connect','attribution','tls.established','tls.clientError','http.request') {
             $n = @($recs | Select-String -Pattern ('"kind":"' + $k + '"') -SimpleMatch).Count
-            Write-Host ("  {0,-16}: {1}" -f $k, $n)
+            Write-Host ("  {0,-18}: {1}" -f $k, $n)
         }
+        # The only number that matters for the gate.
+        $lb = @($recs | Select-String -Pattern '"levelBEvidence":true' -SimpleMatch).Count
+        $unres = @($recs | Select-String -Pattern '"unresolved":true' -SimpleMatch).Count
+        Write-Host ("  {0,-18}: {1}" -f 'LEVEL B (game)', $lb)
+        Write-Host ("  {0,-18}: {1}  (cannot support a Level B claim)" -f 'unattributed', $unres)
     } else { Write-Host 'log records     : (no log yet)' }
 } else { Write-Host 'no probe recorded' }
 

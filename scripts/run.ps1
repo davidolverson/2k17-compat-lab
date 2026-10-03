@@ -44,6 +44,30 @@ if ($p.HasExited) {
     throw 'Probe failed to start.'
 }
 
+# Wait for the attribution poller to actually be live before declaring readiness.
+# Its powershell child takes ~1-2s to start, and until it produces a row the port
+# table is empty, so anything connecting in that window is UNATTRIBUTABLE and
+# cannot support a Level B claim. Never launch the game until this passes.
+$probeLog = Join-Path $LogDir "probe.$($state.runId).jsonl"
+$ready = $false
+$deadline = (Get-Date).AddSeconds(25)
+while ((Get-Date) -lt $deadline) {
+    if (Test-Path $probeLog) {
+        if (@(Select-String -Path $probeLog -Pattern 'attribution.poller.ready' -SimpleMatch -ErrorAction SilentlyContinue).Count -gt 0) {
+            $ready = $true; break
+        }
+    }
+    Start-Sleep -Milliseconds 300
+}
+if ($ready) {
+    Write-Step 'Attribution poller READY -- connections will be PID-attributed.' 'OK'
+} else {
+    Write-Step 'Attribution poller did NOT report ready within 25s.' 'WARN'
+    Write-Step '  The probe still logs traffic, but owners may come back UNRESOLVED,' 'WARN'
+    Write-Step '  and an UNRESOLVED request CANNOT be reported as Level B evidence.' 'WARN'
+    Write-Step '  Check logs for attribution.poller.stderr before launching the game.' 'WARN'
+}
+
 $startUtc = $null
 try { $startUtc = $p.StartTime.ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ') } catch { }
 
