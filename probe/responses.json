@@ -1,0 +1,28 @@
+{
+  "_comment": [
+    "Phase 6 experiment control. probe.js re-reads this on EVERY request, so a",
+    "response can be changed while the game is running -- no restart, no client",
+    "back-off, no lost session.",
+    "",
+    "Change ONE variable at a time and record the client's reaction in",
+    "research/timeline.md. Do not invent large fake API objects: the objective is",
+    "the SMALLEST response that makes the client proceed.",
+    "",
+    "Experiment ladder (run in this order):",
+    "  001  404 empty              <- current default",
+    "  002  200 empty body",
+    "  003  200 {} application/json",
+    "  004  200 {} + whatever Content-Type the client's Accept header asked for",
+    "",
+    "Rule fields: method, pathEquals | pathPrefix | pathRegex, label, response.",
+    "response.bodyEncoding may be 'base64' for non-text payloads."
+  ],
+
+  "default": {
+    "status": 404,
+    "headers": { "Content-Type": "text/plain" },
+    "body": ""
+  },
+
+  "rules": []
+}

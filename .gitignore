@@ -1,0 +1,58 @@
+# ---------------------------------------------------------------------------
+# NEVER COMMIT. Written before any key or capture exists on disk, on purpose.
+#
+# NOTE (landmine): an exact-name ignore rule protects ONLY that exact name.
+# A backup like `ca.key.bak-20261003` is NOT matched by a rule for `ca.key`.
+# Every rule below is therefore a GLOB, and backups are forbidden inside the
+# repo entirely -- see scripts/_common.ps1, which writes state outside it.
+# ---------------------------------------------------------------------------
+
+# --- machine state + rollback data (never shared, machine-specific) ---
+experiment-state/
+logs/
+
+# --- raw captures: may contain unrelated traffic, tokens, Steam IDs ---
+captures/
+!captures/.gitkeep
+*.pcap
+*.pcapng
+*.etl
+*.jsonl
+# ...but a SANITIZED fixture is the one probe artifact meant to be shared, and
+# it is the whole point of export-sanitized.ps1. Re-allow only that directory.
+!sanitized-fixtures/**/*.jsonl
+
+# --- private keys, certs, anything key-shaped, INCLUDING backups ---
+*.key
+*.key.*
+*key.pem
+*.pem
+*.pfx
+*.p12
+*.pkcs12
+*.crt.bak*
+*private*
+*secret*
+
+# --- credentials / tokens ---
+.env
+.env.*
+*.token
+*token*
+*credential*
+
+# --- game binaries and assets: NEVER in this repo ---
+NBA2K17.exe
+*.exe
+*.dll
+*.iff
+*.ptf
+*.arc
+*.bin
+
+# --- node ---
+node_modules/
+
+# --- OS noise ---
+Thumbs.db
+desktop.ini
