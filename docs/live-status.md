@@ -34,9 +34,24 @@ Evidence (all local, Steam client not running):
 | `userdata\...\config\localconfig.vdf` | `385760` among 29 app ids | absent |
 | `appcache\librarycache` | `385760` among **90 app ids with cached art** | absent |
 
-The librarycache figure is the most informative: ~90 titles are known to this
-client while only 3 are installed, so that cache does reflect owned-but-not-
-installed games. 385760 is not among them.
+**CORRECTION (2026-10-03, later the same session).** I originally called the
+librarycache figure "the most informative", on the reasoning that it lists
+owned-but-uninstalled titles. Resolving all 90 appIDs against the store API showed
+that cache also contains **demos, free-to-play titles and store promos** -- `Portal:
+First Slice`, `Half-Life 2: Demo`, `Overwatch`, `Call of Duty`, and a Valve Index
+advertisement. So it reflects the library *view*, not strictly purchases, and its
+silence on 385760 is weaker evidence than I claimed.
+
+The non-ownership conclusion still holds, on the four sources that do track
+entitlement and play history: `licensecache`, `packageinfo.vdf`, `appinfo.vdf` and
+`localconfig.vdf`. But the specific claim about librarycache was overstated and is
+withdrawn.
+
+**Related finding: David owns no game with dead official servers.** The resolved
+library is GTA V (Legacy + Enhanced), TF2, Dota 2, Deadlock, Helldivers 2, Marvel
+Rivals, Overwatch, Once Human, Schedule I, Source Filmmaker -- all live services.
+So the "prove the same engineering on a substitute title whose servers are already
+gone" shortcut has **no candidate**. That avenue is closed, not merely untried.
 
 Independent corroboration from Steam's own API: `appdetails?appids=385760`
 returns **no `packages` array and an empty `package_groups`** -- the signature of
@@ -139,6 +154,18 @@ LATEST EVIDENCE:
     absence verified).
   - THE MACHINE IS CURRENTLY IN ITS ORIGINAL STATE. No hosts entry, no trusted
     CA, no listener, no running probe.
+
+UNBLOCKED WORK COMPLETED WHILE WAITING:
+  - scripts/validate-instrument.ps1 proves the apparatus on a game David DOES own.
+    Every control until now was synthetic (renamed node.exe, powershell, a
+    hand-made loopback connection). None of it showed that attribution survives a
+    real DRM-wrapped, multi-process, launcher-fronted commercial game. That is the
+    assumption most likely to waste the single 2K17 attempt, so it gets tested
+    first, for free, on GTA V.
+    Modifies NO network state and never starts the probe, so it cannot emit
+    levelBEvidence and cannot be confused with a gate run.
+    RUN IT WITH:  .\scripts\validate-instrument.ps1 -AppId 271590
+    (Expect it to seize the display: Rockstar launcher + BattlEye + a 120 GB game.)
 
 NEXT EXPERIMENT:
   Gated on David answering one question: do you own NBA 2K17 on Steam?
