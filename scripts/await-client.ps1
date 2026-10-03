@@ -84,14 +84,71 @@ Write-Step '  3. record observed hostnames in research\service-map.md' 'WARN'
 Write-Step '  4. .\scripts\test-replacement.ps1 -Hostname <observed>   <- the gate' 'WARN'
 Write-Step ''
 
+# --- the only automated availability signal available to us -----------------
+#
+# What is NOT monitored, and why: SteamGifts and SteamTrades return HTTP 403 to
+# automated requests -- even for robots.txt -- so they are deliberately blocking
+# bots at the edge. Getting a scraper past that means spoofing a browser to defeat
+# an access control the site intentionally put there. Not done. Giveaway and trade
+# hunting on those boards is manual, by hand, signed in as yourself.
+#
+# Steam's own store API does answer us, so the one thing we can watch
+# automatically is whether 2K ever re-lists 385760 for sale. Unlikely, but it
+# would be decisive and it costs one request per cycle.
+function Test-StoreRelisted {
+    param([int]$Id)
+    try {
+        $r = Invoke-RestMethod -Uri "https://store.steampowered.com/api/appdetails?appids=$Id" `
+                -TimeoutSec 20 -UseBasicParsing -ErrorAction Stop
+        $e = $r.$Id
+        if (-not $e -or -not $e.success -or -not $e.data) { return $null }
+        $d = $e.data
+        $pkgs = 0
+        if ($d.PSObject.Properties.Name -contains 'packages' -and $d.packages) { $pkgs = @($d.packages).Count }
+        $groups = 0
+        if ($d.PSObject.Properties.Name -contains 'package_groups' -and $d.package_groups) { $groups = @($d.package_groups).Count }
+        $free = $false
+        if ($d.PSObject.Properties.Name -contains 'is_free') { $free = [bool]$d.is_free }
+        return (New-Object psobject -Property ([ordered]@{
+            name = $d.name; packages = $pkgs; packageGroups = $groups
+            isFree = $free; buyable = ($pkgs -gt 0 -or $groups -gt 0 -or $free)
+        }))
+    } catch { return $null }
+}
+
+$store = Test-StoreRelisted -Id $AppId
+if ($store -ne $null) {
+    Write-Step "Steam store check: '$($store.name)' packages=$($store.packages) groups=$($store.packageGroups) buyable=$($store.buyable)"
+    if ($store.buyable) {
+        Write-Step 'STORE SAYS BUYABLE -- that would be a relist. Verify on the store page.' 'OK'
+    } else {
+        Write-Step '  still delisted (no packages, no package groups) -- expected.'
+    }
+}
+Write-Step ''
+
 $deadline = (Get-Date).AddHours($MaxHours)
 $announcedManifest = $false
 $lastPct = -1
+$lastStoreCheck = Get-Date
+$storeCheckMinutes = 30
 
 while ((Get-Date) -lt $deadline) {
     $found = Find-Install
 
     if ($found -eq $null) {
+        # Low-frequency relist check while we wait. One request per 30 min.
+        if (((Get-Date) - $lastStoreCheck).TotalMinutes -ge $storeCheckMinutes) {
+            $lastStoreCheck = Get-Date
+            $s = Test-StoreRelisted -Id $AppId
+            if ($s -ne $null -and $s.buyable) {
+                Write-Step '*****************************************************************' 'OK'
+                Write-Step "RELISTED: Steam now reports $AppId as purchasable." 'OK'
+                Write-Step "  packages=$($s.packages) groups=$($s.packageGroups) free=$($s.isFree)" 'OK'
+                Write-Step '  Check the store page -- if real, buy it and skip the key hunt.' 'OK'
+                Write-Step '*****************************************************************' 'OK'
+            }
+        }
         Start-Sleep -Seconds $IntervalSeconds
         continue
     }
