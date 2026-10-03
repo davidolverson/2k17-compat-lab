@@ -147,10 +147,22 @@ if ($state -ne $null -and $state.certs -ne $null) {
     if ($state.certs.PSObject.Properties.Name -contains 'trustStorePath' -and $state.certs.trustStorePath) {
         $trustPath = $state.certs.trustStorePath
     }
+    # NOTE the Intermediate CA stores. Windows also places a self-signed CA into
+    # `CA` (Intermediate Certification Authorities), and cleanup originally checked
+    # only `My` and `Root` -- so it printed CLEANUP_VERIFIED_CLEAN eight separate
+    # times today while leaving a CA copy behind on every single run. Found only by
+    # enumerating a store nothing had thought to look in.
+    #
+    # Impact was limited (an Intermediate CA entry is not a trust anchor), but the
+    # VERDICT was false, which is the part that matters: a cleanup that does not
+    # look cannot report clean.
     $targets = @(
-        @{ Store = $trustPath;             Thumb = $state.certs.caThumbprint;   Sha = $state.certs.caSha256;   Label = 'CA (trust)' },
-        @{ Store = 'Cert:\CurrentUser\My'; Thumb = $state.certs.caThumbprint;   Sha = $state.certs.caSha256;   Label = 'CA (keypair)' },
-        @{ Store = 'Cert:\CurrentUser\My'; Thumb = $state.certs.leafThumbprint; Sha = $state.certs.leafSha256; Label = 'leaf' }
+        @{ Store = $trustPath;                     Thumb = $state.certs.caThumbprint;   Sha = $state.certs.caSha256;   Label = 'CA (trust)' },
+        @{ Store = 'Cert:\CurrentUser\My';         Thumb = $state.certs.caThumbprint;   Sha = $state.certs.caSha256;   Label = 'CA (keypair)' },
+        @{ Store = 'Cert:\CurrentUser\CA';         Thumb = $state.certs.caThumbprint;   Sha = $state.certs.caSha256;   Label = 'CA (intermediate, user)' },
+        @{ Store = 'Cert:\LocalMachine\CA';        Thumb = $state.certs.caThumbprint;   Sha = $state.certs.caSha256;   Label = 'CA (intermediate, machine)' },
+        @{ Store = 'Cert:\CurrentUser\My';         Thumb = $state.certs.leafThumbprint; Sha = $state.certs.leafSha256; Label = 'leaf' },
+        @{ Store = 'Cert:\CurrentUser\CA';         Thumb = $state.certs.leafThumbprint; Sha = $state.certs.leafSha256; Label = 'leaf (intermediate)' }
     )
     foreach ($t in $targets) {
         if (-not $t.Thumb) { Write-Step "$($t.Label): never created (nothing recorded)."; continue }
@@ -194,7 +206,8 @@ if ($state -ne $null -and $state.certs -ne $null) {
     #   FOREIGN -- subject matches but carries no runId. Could be anything: an
     #              older tool, a different lab, a deliberate decoy. NEVER removed,
     #              no matter what flag is passed. Subject is not identity.
-    $searchStores = @('Cert:\CurrentUser\Root', 'Cert:\CurrentUser\My', 'Cert:\LocalMachine\Root')
+    $searchStores = @('Cert:\CurrentUser\Root', 'Cert:\CurrentUser\My', 'Cert:\CurrentUser\CA',
+                      'Cert:\LocalMachine\Root', 'Cert:\LocalMachine\CA')
     # Dedupe by thumbprint. Windows merges LocalMachine\Root into the CurrentUser
     # view, so one certificate enumerates twice across these stores and the count
     # printed below would otherwise claim 2 certificates where only 1 exists.
@@ -286,9 +299,12 @@ if ($state -ne $null -and $state.certs -ne $null) {
         $tp = $state.certs.trustStorePath
     }
     foreach ($pair in @(
-        @{ T = $state.certs.caThumbprint;   P = "$tp\$($state.certs.caThumbprint)";                  L = 'CA in trust store' },
-        @{ T = $state.certs.caThumbprint;   P = "Cert:\CurrentUser\My\$($state.certs.caThumbprint)";   L = 'CA in My' },
-        @{ T = $state.certs.leafThumbprint; P = "Cert:\CurrentUser\My\$($state.certs.leafThumbprint)"; L = 'leaf in My' })) {
+        @{ T = $state.certs.caThumbprint;   P = "$tp\$($state.certs.caThumbprint)";                      L = 'CA in trust store' },
+        @{ T = $state.certs.caThumbprint;   P = "Cert:\CurrentUser\My\$($state.certs.caThumbprint)";     L = 'CA in My' },
+        @{ T = $state.certs.caThumbprint;   P = "Cert:\CurrentUser\CA\$($state.certs.caThumbprint)";     L = 'CA in Intermediate (user)' },
+        @{ T = $state.certs.caThumbprint;   P = "Cert:\LocalMachine\CA\$($state.certs.caThumbprint)";    L = 'CA in Intermediate (machine)' },
+        @{ T = $state.certs.leafThumbprint; P = "Cert:\CurrentUser\My\$($state.certs.leafThumbprint)";   L = 'leaf in My' },
+        @{ T = $state.certs.leafThumbprint; P = "Cert:\CurrentUser\CA\$($state.certs.leafThumbprint)";   L = 'leaf in Intermediate' })) {
         if (-not $pair.T) { Write-Step "cert: $($pair.L) -- none recorded, nothing to check"; continue }
         $present = [bool](Get-Item $pair.P -ErrorAction SilentlyContinue)
         Write-Step "cert: $($pair.L) present=$present"

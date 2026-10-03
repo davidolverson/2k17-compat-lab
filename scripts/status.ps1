@@ -63,7 +63,7 @@ if ($state -ne $null -and $state.certs -ne $null) {
     Write-Host ("CA sha256       : {0}" -f $state.certs.caSha256)
     Write-Host ("leaf sha256     : {0}" -f $state.certs.leafSha256)
 } else { Write-Host 'no certificates recorded' }
-$look = @(Get-ChildItem Cert:\CurrentUser\Root, Cert:\CurrentUser\My -ErrorAction SilentlyContinue | Where-Object { $_.Subject -like '*2k17-compat-lab*' })
+$look = @(Get-ChildItem Cert:\CurrentUser\Root, Cert:\CurrentUser\My, Cert:\CurrentUser\CA, Cert:\LocalMachine\Root, Cert:\LocalMachine\CA -ErrorAction SilentlyContinue | Where-Object { $_.Subject -like '*2k17-compat-lab*' })
 Write-Host ("subject lookalikes present: {0}" -f $look.Count)
 
 Write-Host ''
