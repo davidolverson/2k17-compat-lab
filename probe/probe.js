@@ -123,7 +123,18 @@ function redactHeaders(h) {
 const { spawn } = require('child_process');
 
 const POLL_MS = 100;
-const portTable = new Map();   // clientPort -> {pid, processName, seenAt}
+const portTable = new Map();   // "addr|port" -> {pid, processName, processPath, seenAt}
+
+// Node reports an IPv4 connection accepted on a dual-stack socket as
+// '::ffff:127.0.0.1'. The OS table says '127.0.0.1'. Without normalising, the two
+// never match and every such connection is UNRESOLVED.
+function normAddr(a) {
+  if (!a) return '';
+  let s = String(a).trim();
+  if (s.toLowerCase().startsWith('::ffff:')) s = s.slice(7);
+  return s;
+}
+function keyFor(addr, port) { return normAddr(addr) + '|' + port; }
 let pollerAlive = false;
 let pollerSnapshots = 0;
 // A silently dropped row is what made the JSON version of this undebuggable: the
@@ -164,7 +175,11 @@ const POLLER_SCRIPT = [
   '$meta = @{}',
   'while ($true) {',
   '  if (-not (Get-Process -Id $parentPid -ErrorAction SilentlyContinue)) { exit 0 }',
-  '  $rows = Get-NetTCPConnection -RemotePort ' + PORT + " -RemoteAddress '" + ADDR + "' -ErrorAction SilentlyContinue",
+  // BOTH loopback families. Filtering on -RemoteAddress '127.0.0.1' alone meant an
+  // IPv6 client reached the probe and was logged, but could never be attributed --
+  // measured: an explicit [::1] request produced attributedTo=UNRESOLVED, which
+  // would have blocked a Level B claim on a request we actually received.
+  '  $rows = Get-NetTCPConnection -RemotePort ' + PORT + " -ErrorAction SilentlyContinue | Where-Object { $_.RemoteAddress -eq '127.0.0.1' -or $_.RemoteAddress -eq '::1' }",
   // Heartbeat EVERY cycle, rows or not. Readiness must mean "the poller is up and
   // querying", not "the poller has seen a connection" -- with an idle listener
   // there are no rows, so a row-triggered ready signal can never fire and the
@@ -180,7 +195,7 @@ const POLLER_SCRIPT = [
   '        $meta[$procId] = $p.ProcessName + "|" + $exe',
   "      } else { $meta[$procId] = 'exited|' }",
   '    }',
-  '    [Console]::Out.WriteLine([string]$r.LocalPort + "|" + [string]$procId + "|" + $meta[$procId])',
+  '    [Console]::Out.WriteLine([string]$r.RemoteAddress + "|" + [string]$r.LocalPort + "|" + [string]$procId + "|" + $meta[$procId])',
   '  }',
   '  [Console]::Out.Flush()',
   '  Start-Sleep -Milliseconds ' + POLL_MS,
@@ -217,18 +232,25 @@ function startPoller() {
         }
         continue;
       }
-      // port|pid|name|path  -- split only the first 3 delimiters so a path
+      // addr|port|pid|name|path -- split only the first 4 delimiters so a path
       // containing anything (except '|', which paths cannot) survives intact.
+      //
+      // The key includes the ADDRESS, not just the port. IPv4 and IPv6 have
+      // independent ephemeral port ranges, so 127.0.0.1:50000 and [::1]:50000 can
+      // both exist at once; keying on the port alone would let one connection's
+      // owner be reported for the other.
       const i1 = t.indexOf('|');
       const i2 = t.indexOf('|', i1 + 1);
       const i3 = t.indexOf('|', i2 + 1);
-      if (i1 < 0 || i2 < 0 || i3 < 0) { pollerMalformed++; continue; }
-      const port = parseInt(t.slice(0, i1), 10);
-      const pid = parseInt(t.slice(i1 + 1, i2), 10);
-      const name = t.slice(i2 + 1, i3);
-      const epath = t.slice(i3 + 1);
+      const i4 = t.indexOf('|', i3 + 1);
+      if (i1 < 0 || i2 < 0 || i3 < 0 || i4 < 0) { pollerMalformed++; continue; }
+      const addr = normAddr(t.slice(0, i1));
+      const port = parseInt(t.slice(i1 + 1, i2), 10);
+      const pid = parseInt(t.slice(i2 + 1, i3), 10);
+      const name = t.slice(i3 + 1, i4);
+      const epath = t.slice(i4 + 1);
       if (!isFinite(port) || !isFinite(pid)) { pollerMalformed++; continue; }
-      portTable.set(port, { pid: pid, processName: name, processPath: epath, seenAt: Date.now() });
+      portTable.set(keyFor(addr, port), { pid: pid, processName: name, processPath: epath, seenAt: Date.now() });
       pollerSnapshots++;
     }
     if (pollerMalformed > 0 && !pollerWarned) {
@@ -256,11 +278,12 @@ function startPoller() {
 // The window is generous while the poller is still starting, because a miss there
 // is an instrument fault rather than a real answer. We are holding the client's
 // request open, so waiting is cheap and safe.
-function resolveOwner(clientPort, cb) {
+function resolveOwner(clientAddr, clientPort, cb) {
   const budget = pollerReady ? 2000 : 6000;
   const deadline = Date.now() + budget;
+  const k = keyFor(clientAddr, clientPort);
   (function attempt() {
-    const hit = portTable.get(clientPort);
+    const hit = portTable.get(k);
     if (hit) return cb(hit);
     if (Date.now() > deadline) return cb(null);
     setTimeout(attempt, 40);
@@ -280,8 +303,8 @@ const attrByPort = new Map();
 // is a loud marker that a reviewer must not read the record as real evidence.
 const STEAM_PATH_RE = /steamapps[\/\\]common[\/\\]/i;
 
-function attributionFor(remotePort) {
-  const a = attrByPort.get(remotePort);
+function attributionFor(remoteAddr, remotePort) {
+  const a = attrByPort.get(keyFor(remoteAddr, remotePort));
   if (!a) {
     return { attributed: 'UNRESOLVED', clientPid: null, clientProcess: null,
              clientPath: null, isGameClient: false, pathLooksLikeSteamInstall: false };
@@ -337,7 +360,9 @@ function pickResponse(req) {
 }
 
 // --- server --------------------------------------------------------------
-const server = https.createServer({
+// Shared TLS material. Both the IPv4 and IPv6 listeners use exactly this object,
+// so there is no chance of the two presenting different certificates.
+const tlsOptions = {
   pfx,
   passphrase,
   minVersion: 'TLSv1',       // 2016 client; let IT choose, do not force modern TLS
@@ -347,10 +372,12 @@ const server = https.createServer({
     emit('tls.sni', { sni: servername });
     cb(null, null);
   }
-});
+};
+
+const server = https.createServer(tlsOptions);
 
 // TCP reached us at all. Distinguishes DNS_NOT_USED from TLS_FAILURE.
-server.on('connection', (sock) => {
+function onConnection(sock) {
   const rport = sock.remotePort;
   const r = emit('tcp.connect', {
     remoteAddress: sock.remoteAddress,
@@ -360,9 +387,9 @@ server.on('connection', (sock) => {
   say(`[tcp ] #${r.seq} ${sock.remoteAddress}:${rport} connected`);
 
   // Resolve the owner NOW, while the socket is established and we hold it.
-  resolveOwner(rport, (owner) => {
+  resolveOwner(sock.remoteAddress, rport, (owner) => {
     if (owner) {
-      attrByPort.set(rport, owner);
+      attrByPort.set(keyFor(sock.remoteAddress, rport), owner);
       const isGame = /^NBA2K17/i.test(owner.processName);
       emit('attribution', {
         remotePort: rport, clientPid: owner.pid, clientProcess: owner.processName,
@@ -381,11 +408,11 @@ server.on('connection', (sock) => {
     }
   });
 
-  sock.on('close', () => { setTimeout(() => attrByPort.delete(rport), 30000); });
-});
+  sock.on('close', () => { const k = keyFor(sock.remoteAddress, rport); setTimeout(() => attrByPort.delete(k), 30000); });
+}
 
 // THE diagnostic for certificate rejection / client-cert demands / pinning.
-server.on('tlsClientError', (err, sock) => {
+function onTlsClientError(err, sock) {
   const r = emit('tls.clientError', {
     remoteAddress: sock ? sock.remoteAddress : null,
     remotePort: sock ? sock.remotePort : null,
@@ -403,12 +430,12 @@ server.on('tlsClientError', (err, sock) => {
   say('[TLS!]   the ORIGINAL 2K service required -- a replacement endpoint cannot');
   say('[TLS!]   answer that question. Do not write mTLS into the service map.');
   say('[TLS!]   And do NOT patch validation to get past this. Classify BLOCKED.');
-});
+}
 
 // TLS handshake COMPLETED. Named `tls.established`, not `tls.handshake`, and
 // deliberately NOT "validation passed": see the header warning. A completed
 // handshake does not prove the client's own validation or pinning accepted us.
-server.on('secureConnection', (sock) => {
+function onSecureConnection(sock) {
   const cert = sock.getPeerCertificate ? sock.getPeerCertificate() : null;
   const hasClientCert = !!(cert && Object.keys(cert).length);
   const r = emit('tls.established', {
@@ -424,9 +451,9 @@ server.on('secureConnection', (sock) => {
   });
   say(`[tls ] #${r.seq} TLS_ESTABLISHED proto=${r.protocol} cipher=${r.cipher ? r.cipher.name : '?'} sni=${r.servername} clientCertPresented=${hasClientCert}`);
   say('[tls ]   ^ transport only. Not proof of app-level acceptance or pinning.');
-});
+}
 
-server.on('request', (req, res) => {
+function onRequest(req, res) {
   const chunks = [];
   let total = 0;
   let truncated = false;
@@ -454,8 +481,8 @@ server.on('request', (req, res) => {
     // must contain the entry. Resolution is guaranteed possible here and nowhere
     // else. Cost is one poll interval of added latency, which is nothing next to
     // being unable to claim Level B at all.
-    resolveOwner(req.socket.remotePort, (owner) => {
-      if (owner) { attrByPort.set(req.socket.remotePort, owner); }
+    resolveOwner(req.socket.remoteAddress, req.socket.remotePort, (owner) => {
+      if (owner) { attrByPort.set(keyFor(req.socket.remoteAddress, req.socket.remotePort), owner); }
       finishRequest(owner);
     });
 
@@ -474,7 +501,7 @@ server.on('request', (req, res) => {
     // Level B is STRUCTURAL, not a console note. A request whose owner is not
     // resolved to NBA2K17.exe is explicitly NOT Level B evidence, and the record
     // says so in a field rather than relying on anyone reading a caveat.
-    const attr = attributionFor(sock.remotePort);
+    const attr = attributionFor(sock.remoteAddress, sock.remotePort);
     const levelB = attr.isGameClient;
 
     const rec = emit('http.request', {
@@ -548,7 +575,7 @@ server.on('request', (req, res) => {
     res.end(bodyOut);
     }
   });
-});
+}
 
 server.on('error', (err) => {
   emit('server.error', { code: err.code, message: err.message });
@@ -560,8 +587,57 @@ server.on('error', (err) => {
 
 let poller = null;
 
+// --- IPv6 loopback ----------------------------------------------------------
+// Binding 127.0.0.1 alone is a blind spot, and the GTA V validation run is what
+// exposed it: every connection SocialClubHelper.exe made was IPv6
+// (2607:f8b0:...), on 443 and 5228. A client that resolves AAAA and prefers IPv6
+// would connect to ::1, find nothing listening, and we would record "no network
+// attempt" -- indistinguishable from a real negative.
+//
+// So setup.ps1 maps the hostname to BOTH 127.0.0.1 and ::1, and a second server
+// instance listens on ::1 sharing every handler. EADDRINUSE / EAFNOSUPPORT on the
+// v6 socket is non-fatal (some hosts have IPv6 disabled) but it IS recorded, so a
+// later unexplained silence can be checked against it rather than guessed at.
+let server6 = null;
+
+// Attaches the four shared handlers. Error handling is attached per-listener by
+// the caller, because a bind failure on IPv6 is tolerable while the same failure
+// on IPv4 is fatal.
+function attachHandlers(s) {
+  s.on('connection', onConnection);
+  s.on('tlsClientError', onTlsClientError);
+  s.on('secureConnection', onSecureConnection);
+  s.on('request', onRequest);
+}
+
+// The primary IPv4 listener needs them too. Converting the handlers from inline
+// `server.on(...)` callbacks into named functions silently DETACHED them from the
+// primary server -- it would have bound 443, accepted connections and logged
+// absolutely nothing.
+attachHandlers(server);
+
 server.listen(PORT, ADDR, () => {
   poller = startPoller();
+
+  // Second listener on IPv6 loopback, same TLS material and same handlers.
+  try {
+    server6 = https.createServer(tlsOptions);
+    attachHandlers(server6);
+    server6.listen(PORT, '::1', () => {
+      emit('probe.listening.ipv6', { address: '::1', port: PORT });
+      say(`[probe] also listening on [::1]:${PORT} (IPv6 loopback)`);
+    });
+    server6.on('error', (e) => {
+      emit('probe.listening.ipv6.failed', { code: e.code, message: e.message });
+      say(`[probe] IPv6 loopback NOT bound (${e.code}). IPv4 only.`);
+      say('[probe] If the client later appears to make no attempt, check this first.');
+      server6 = null;
+    });
+  } catch (e) {
+    emit('probe.listening.ipv6.failed', { message: e.message });
+    say(`[probe] could not create IPv6 listener: ${e.message}`);
+  }
+
   emit('probe.listening', { address: ADDR, port: PORT, pid: process.pid, attributionPollMs: POLL_MS });
   say('='.repeat(72));
   say(`[probe] listening https://${ADDR}:${PORT}  pid=${process.pid}`);
@@ -574,9 +650,13 @@ server.listen(PORT, ADDR, () => {
 
 for (const sig of ['SIGINT', 'SIGTERM']) {
   process.on(sig, () => {
-    emit('probe.stopping', { signal: sig, pollerSnapshots: pollerSnapshots, pollerAlive: pollerAlive });
+    emit('probe.stopping', {
+      signal: sig, pollerSnapshots: pollerSnapshots, pollerAlive: pollerAlive,
+      pollerMalformed: pollerMalformed, ipv6Bound: !!server6
+    });
     say(`[probe] ${sig} -- closing.`);
     if (poller) { try { poller.kill(); } catch (e) { /* already gone */ } }
+    if (server6) { try { server6.close(); } catch (e) { /* already gone */ } }
     server.close(() => process.exit(0));
     setTimeout(() => process.exit(0), 1500);
   });

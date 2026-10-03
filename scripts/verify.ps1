@@ -37,11 +37,24 @@ Add-Check 'dns.resolves.loopback' ($ip -eq '127.0.0.1') "$TargetHost -> $ip (wan
 # 2. Listener bound
 $port = 443
 if ($state.listener -ne $null) { $port = [int]$state.listener.port }
-$owner = Get-PortOwner -Port $port
-$bound = ($owner -ne $null)
+$owner = @(Get-PortOwner -Port $port)
+# @().Count, not ($owner -ne $null). Once the probe began binding BOTH 127.0.0.1
+# and ::1, Get-PortOwner returned two rows, and `-ne $null` on an array evaluates
+# to the filtered ARRAY rather than a boolean -- which threw on the [bool]
+# parameter and, because the throw skipped Add-Check entirely, left the suite
+# printing PROBE_SELF_TEST_PASS with one check silently missing.
+$bound = ($owner.Count -gt 0)
 $ownerDesc = 'nothing bound'
-if ($bound) { $ownerDesc = (($owner | ForEach-Object { "pid=$($_.pid) $($_.processName)" }) -join ', ') }
+if ($bound) { $ownerDesc = (($owner | ForEach-Object { "$($_.localAddress) pid=$($_.pid) $($_.processName)" }) -join ' | ') }
 Add-Check 'tcp.listener.bound' $bound "port $port : $ownerDesc"
+
+# Both address families must be listening, because setup.ps1 maps the hostname to
+# 127.0.0.1 AND ::1. If only one is bound, an IPv6-preferring client would find
+# nothing and we would mis-read that as "the client made no attempt".
+$v4 = @($owner | Where-Object { $_.localAddress -eq '127.0.0.1' }).Count -gt 0
+$v6 = @($owner | Where-Object { $_.localAddress -eq '::1' }).Count -gt 0
+Add-Check 'tcp.listener.ipv4' $v4 '127.0.0.1:443'
+Add-Check 'tcp.listener.ipv6' $v6 '[::1]:443'
 
 # 3. Listener is OUR probe, not something that grabbed the port after setup
 $isOurs = $false
@@ -194,7 +207,24 @@ if ($state.probe -ne $null -and $state.probe.stdoutPath -and (Test-Path $state.p
 Add-Check 'no.secret.in.stdout' ($leakVerified -and -not $leak) $leakDetail
 
 # --- verdict ---------------------------------------------------------------
+#
+# A check that THREW never reaches Add-Check, so it leaves no record and the
+# verdict below would see zero failures and declare PASS. That is exactly how this
+# suite printed PROBE_SELF_TEST_PASS while `tcp.listener.bound` was erroring out.
+# So the count of checks that actually ran is itself asserted: if any are missing,
+# the suite fails and says which number is wrong.
+$EXPECTED_CHECKS = 14
 $failed = @($checks | Where-Object { -not $_.pass })
+
+if ($checks.Count -ne $EXPECTED_CHECKS) {
+    Write-Step '---'
+    Write-Step "PROBE_SELF_TEST_FAIL -- only $($checks.Count) of $EXPECTED_CHECKS checks recorded." 'ERROR'
+    Write-Step 'A check threw before registering a result. Scroll up for the exception.' 'ERROR'
+    Write-Step 'An unrecorded check is NOT a passing check.' 'ERROR'
+    Write-Step "  recorded: $(($checks | ForEach-Object { $_.name }) -join ', ')" 'ERROR'
+    exit 1
+}
+
 Write-Step '---'
 if ($failed.Count -eq 0) {
     Write-Step 'PROBE_SELF_TEST_PASS' 'OK'

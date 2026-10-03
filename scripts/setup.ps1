@@ -257,9 +257,15 @@ Write-LabState $state
 # hosts entry -- marker-delimited block. Narrowest possible redirect.
 # ===========================================================================
 Write-Step "Adding marker-delimited hosts block for $TargetHost ..."
+# BOTH address families. A hosts file maps a name per-family, and mapping only
+# 127.0.0.1 leaves an IPv6-preferring client resolving the real AAAA record and
+# talking to the actual internet -- which would look exactly like "the redirect
+# didn't work". The GTA V validation run showed a real game's helpers using IPv6
+# exclusively, so this is not hypothetical. probe.js listens on ::1 to match.
 $block = @(
     $state.hosts.beginMarker,
     "127.0.0.1`t$TargetHost",
+    "::1`t$TargetHost",
     $state.hosts.endMarker
 )
 # CRLF + ASCII body, but the file's existing BOM (if any) is preserved -- see
