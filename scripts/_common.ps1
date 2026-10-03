@@ -131,6 +131,68 @@ function Get-FileSha256 {
     return (Get-FileHash -Path $Path -Algorithm SHA256).Hash
 }
 
+# --- process identity by PATH, not by name ----------------------------------
+#
+# Found by validating against GTA V on 2026-10-03, and it would have produced a
+# FALSE NO-GO on the central question of this project:
+#
+#   * `GTA5.exe` (45 MB, the obvious "main binary") was NOT running at all.
+#     `GTA5_BE.exe` (1 MB, a BattlEye shim) was. A size heuristic picks the wrong
+#     one, and waiting on the wrong name reports "the game never started".
+#   * Of the live Rockstar processes, `Launcher` and `RockstarService` owned ZERO
+#     outbound connections. Seven `SocialClubHelper.exe` processes owned them.
+#     **The network traffic belonged to helpers, not to the game binary.**
+#
+# If NBA 2K17 does the same, a single-name watcher sees nothing and we would
+# conclude "no network attempt" when the client was talking the whole time.
+#
+# So identity is: does the owning process's EXECUTABLE PATH live under the game's
+# install directory? That covers helpers, shims, child processes and renamed
+# binaries in one rule, and it cannot be satisfied by a file dropped in a temp
+# folder.
+
+function Get-ProcessesUnderPath {
+    param([Parameter(Mandatory=$true)][string]$InstallDir)
+    $norm = $InstallDir.TrimEnd('\') + '\'
+    $out = @()
+    foreach ($p in (Get-Process -ErrorAction SilentlyContinue)) {
+        $path = $null
+        try { $path = $p.Path } catch { continue }
+        if (-not $path) { continue }
+        if ($path.StartsWith($norm, [StringComparison]::OrdinalIgnoreCase)) {
+            $out += (New-Object psobject -Property ([ordered]@{
+                pid = $p.Id; name = $p.ProcessName; path = $path
+            }))
+        }
+    }
+    return $out
+}
+
+# Every outbound connection owned by any process under the install dir.
+function Get-ConnectionsUnderPath {
+    param(
+        [Parameter(Mandatory=$true)][string]$InstallDir,
+        [switch]$IncludeLoopback
+    )
+    $procs = Get-ProcessesUnderPath -InstallDir $InstallDir
+    $out = @()
+    foreach ($pr in $procs) {
+        $conns = @(Get-NetTCPConnection -OwningProcess $pr.pid -ErrorAction SilentlyContinue)
+        foreach ($c in $conns) {
+            if ($c.RemoteAddress -in @('0.0.0.0', '::')) { continue }
+            if (-not $IncludeLoopback -and $c.RemoteAddress -in @('127.0.0.1', '::1')) { continue }
+            $out += (New-Object psobject -Property ([ordered]@{
+                pid = $pr.pid; name = $pr.name; path = $pr.path
+                localPort = $c.LocalPort
+                remoteAddress = $c.RemoteAddress
+                remotePort = $c.RemotePort
+                state = $c.State.ToString()
+            }))
+        }
+    }
+    return $out
+}
+
 # --- port -------------------------------------------------------------------
 # --- hosts file I/O ---------------------------------------------------------
 # This machine's hosts file starts with a UTF-8 BOM (EF BB BF). Writing it back

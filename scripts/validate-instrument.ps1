@@ -116,30 +116,40 @@ if (-not $SkipCapture) {
 # whichever attribution log it touched. Instead we run our own inline watcher so
 # this validation never depends on lab state existing.
 $watchJob = Start-Job -ScriptBlock {
-    param($ProcName, $OutLog, $Minutes)
+    param($InstallDir, $OutLog, $Minutes)
+    # Attribute by EXECUTABLE PATH under the install dir, not by process name.
+    # GTA V proved why: the 45 MB "main binary" was not running, a 1 MB BattlEye
+    # shim was, and the outbound connections belonged to SocialClubHelper.exe --
+    # not to the game binary at all.
+    $norm = $InstallDir.TrimEnd('\') + '\'
     $seen = @{}
     $deadline = (Get-Date).AddMinutes($Minutes)
     while ((Get-Date) -lt $deadline) {
-        $procs = @(Get-Process -Name $ProcName -ErrorAction SilentlyContinue)
-        foreach ($p in $procs) {
+        foreach ($p in (Get-Process -ErrorAction SilentlyContinue)) {
+            $path = $null
+            try { $path = $p.Path } catch { continue }
+            if (-not $path) { continue }
+            if (-not $path.StartsWith($norm, [StringComparison]::OrdinalIgnoreCase)) { continue }
             $conns = @(Get-NetTCPConnection -OwningProcess $p.Id -ErrorAction SilentlyContinue |
-                Where-Object { $_.RemoteAddress -ne '0.0.0.0' -and $_.RemoteAddress -ne '::' -and $_.RemoteAddress -ne '127.0.0.1' })
+                Where-Object { $_.RemoteAddress -notin @('0.0.0.0','::','127.0.0.1','::1') })
             foreach ($c in $conns) {
-                $key = "$($c.LocalPort):$($c.RemoteAddress):$($c.RemotePort)"
+                $key = "$($p.Id):$($c.LocalPort):$($c.RemoteAddress):$($c.RemotePort)"
                 if ($seen.ContainsKey($key)) { continue }
                 $seen[$key] = $true
                 $rec = [ordered]@{
                     tsUtc = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
                     kind = 'game.connection'; gamePid = $p.Id; processName = $p.ProcessName
+                    processPath = $path
                     localPort = $c.LocalPort; remoteAddress = $c.RemoteAddress
                     remotePort = $c.RemotePort; state = $c.State.ToString()
+                    isIPv6 = ($c.RemoteAddress -like '*:*')
                 }
                 Add-Content -Path $OutLog -Value ((New-Object psobject -Property $rec) | ConvertTo-Json -Depth 4 -Compress) -Encoding UTF8
             }
         }
         Start-Sleep -Milliseconds 200
     }
-} -ArgumentList $ProcessName, $attrLog, ($ObserveMinutes + 2)
+} -ArgumentList $installDir, $attrLog, ($ObserveMinutes + 6)
 Write-Step "Watcher job started (id $($watchJob.Id)); log: $attrLog"
 
 # -------------------------------------------------------------------- 5. launch
@@ -147,16 +157,24 @@ Write-Step ''
 Write-Step "=== Launching $appName via Steam (normal licensed path) ==="
 Start-Process "steam://rungameid/$AppId"
 
-Write-Step "Waiting for process '$ProcessName' (up to 5 min; Steam may need to start first) ..."
-$proc = $null
-$deadline = (Get-Date).AddMinutes(5)
+Write-Step "Waiting for ANY process whose exe lives under the install dir (up to 6 min) ..."
+Write-Step "  (not waiting on one name -- GTA V showed the live process can be a 1 MB"
+Write-Step "   shim while the 45 MB 'main binary' never runs at all)"
+$seenProcs = @()
+$deadline = (Get-Date).AddMinutes(6)
 while ((Get-Date) -lt $deadline) {
-    $proc = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($proc) { break }
-    Start-Sleep -Seconds 1
+    $seenProcs = @(Get-ProcessesUnderPath -InstallDir $installDir)
+    if ($seenProcs.Count -gt 0) { break }
+    Start-Sleep -Seconds 2
 }
-if ($proc) { Write-Step "$ProcessName running: pid=$($proc.Id)" 'OK' }
-else { Write-Step "'$ProcessName' never appeared. It may use a different exe name." 'ERROR' }
+if ($seenProcs.Count -gt 0) {
+    Write-Step "Processes running from the install dir:" 'OK'
+    foreach ($sp in $seenProcs) { Write-Step "  pid=$($sp.pid)  $($sp.name)  <- $($sp.path)" 'OK' }
+} else {
+    Write-Step "No process is running from $installDir." 'ERROR'
+    Write-Step "If a launcher window is open, the GAME itself has not started yet --" 'ERROR'
+    Write-Step "press Play in it. Observers keep running." 'ERROR'
+}
 
 Write-Step ''
 Write-Step '################################################################'
