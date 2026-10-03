@@ -17,7 +17,11 @@
 param(
     [int]$Port = 443,
     [int]$IntervalMs = 250,
-    [int]$MaxMinutes = 120
+    [int]$MaxMinutes = 120,
+    # The target process. Parameterised so the SAME instrument can be validated
+    # against a game we actually own before the one-shot 2K17 run, instead of
+    # trusting that it works because it worked on a renamed node.exe.
+    [string]$ProcessName = 'NBA2K17'
 )
 
 $ErrorActionPreference = 'Continue'
@@ -30,8 +34,8 @@ if ($state -ne $null) { $runId = $state.runId }
 $outLog = Join-Path $LogDir "attribution.$runId.jsonl"
 
 Write-Host "=== attribution watcher ==="
-Write-Host "watching 127.0.0.1:$Port  interval=${IntervalMs}ms  log=$outLog"
-Write-Host 'Also tracking every outbound connection owned by NBA2K17.exe.'
+Write-Host "watching 127.0.0.1:$Port  target=$ProcessName  interval=${IntervalMs}ms  log=$outLog"
+Write-Host "Also tracking every outbound connection owned by $ProcessName.exe."
 Write-Host 'Ctrl+C to stop.'
 Write-Host ''
 
@@ -73,10 +77,10 @@ while ((Get-Date) -lt $deadline) {
             clientPort    = $c.LocalPort     # == probe's remotePort. THE correlation key.
             state         = $c.State.ToString()
         }
-        $isGame = ($name -like 'NBA2K17*')
+        $isGame = ($name -like "$ProcessName*")
         if ($isGame) {
             Write-Host ''
-            Write-Host "*** NBA2K17.exe -> PROBE ***  pid=$($c.OwningProcess) clientPort=$($c.LocalPort)" -ForegroundColor Green
+            Write-Host "*** $ProcessName.exe -> PROBE ***  pid=$($c.OwningProcess) clientPort=$($c.LocalPort)" -ForegroundColor Green
             Write-Host "    Correlate probe log records with remotePort=$($c.LocalPort)." -ForegroundColor Green
             Write-Host ''
         } else {
@@ -84,8 +88,8 @@ while ((Get-Date) -lt $deadline) {
         }
     }
 
-    # --- everything NBA2K17.exe talks to, anywhere --------------------------
-    $game = @(Get-Process -Name 'NBA2K17' -ErrorAction SilentlyContinue)
+    # --- everything the target process talks to, anywhere -------------------
+    $game = @(Get-Process -Name $ProcessName -ErrorAction SilentlyContinue)
     foreach ($g in $game) {
         $gc = @(Get-NetTCPConnection -OwningProcess $g.Id -ErrorAction SilentlyContinue |
                 Where-Object { $_.RemoteAddress -ne '0.0.0.0' -and $_.RemoteAddress -ne '::' })
@@ -100,7 +104,7 @@ while ((Get-Date) -lt $deadline) {
                 remotePort    = $c.RemotePort
                 state         = $c.State.ToString()
             } | Out-Null
-            Write-Host "[game] NBA2K17 pid=$($g.Id) -> $($c.RemoteAddress):$($c.RemotePort) ($($c.State))"
+            Write-Host "[game] $ProcessName pid=$($g.Id) -> $($c.RemoteAddress):$($c.RemotePort) ($($c.State))"
         }
     }
 
