@@ -140,4 +140,4 @@ if (require.main === module) {
     }
 }
 
-module.exports = { Inspect, ApplyAllow, LoadPrivateTerms, Sha256, ForbiddenExtensions, ContentRules };
+module.exports = { Inspect, ApplyAllow, LoadPrivateTerms, LoadAllow, Sha256, ForbiddenExtensions, ContentRules };
