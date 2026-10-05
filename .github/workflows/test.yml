@@ -95,7 +95,64 @@ jobs:
           $doc = Get-Content $manifest.FullName -Raw | ConvertFrom-Json
           if ($doc.fileCount -ne 2) { throw "snapshot did not preserve both files" }
           foreach ($entry in $doc.files) {
-            if ($entry.sha256 -notmatch '^[0-9a-f]{64}) { throw "invalid snapshot SHA-256" }
+            if ($entry.sha256 -notmatch '^[0-9a-f]{64}
+          }
+
+      - name: Prove Mission 14 Granite-aware P0 wrapper
+        shell: powershell
+        run: |
+          $fixture = Join-Path $env:RUNNER_TEMP "mission14-p0"
+          New-Item -ItemType Directory -Force -Path $fixture | Out-Null
+
+          $payload = [Text.Encoding]::ASCII.GetBytes("synthetic-user-content")
+          $header = New-Object byte[] 8
+          [Text.Encoding]::ASCII.GetBytes("BNH!").CopyTo($header, 0)
+          [BitConverter]::GetBytes([UInt32]$payload.Length).CopyTo($header, 4)
+          $bundle = New-Object byte[] ($header.Length + $payload.Length)
+          $header.CopyTo($bundle, 0)
+          $payload.CopyTo($bundle, $header.Length)
+
+          $upload = Join-Path $fixture "upload.bin"
+          $returned = Join-Path $fixture "returned.bin"
+          [IO.File]::WriteAllBytes($upload, $bundle)
+          [IO.File]::WriteAllBytes($returned, $bundle)
+
+          $before = Join-Path $fixture "before.log"
+          $after = Join-Path $fixture "after.log"
+          @'
+          @ 2026-10-05 08:05:22.607 POST /Session/login?x=1 session=1
+          @ 2026-10-05 08:07:22.608 POST /nba/2k17/Session/update?x=1 session=1
+          '@ | Set-Content $before -Encoding ASCII
+          @'
+          @ 2026-10-05 08:05:22.607 POST /Session/login?x=1 session=1
+          @ 2026-10-05 08:07:22.608 POST /nba/2k17/Session/update?x=1 session=1
+          @ 2026-10-05 08:07:30.000 POST /nba/2k17/ParkGameStatsV3/ParkSummary?x=1 session=1
+          '@ | Set-Content $after -Encoding ASCII
+
+          $spec = Join-Path $fixture "park-experiment.json"
+          @'
+          {
+            "hypothesis": "H3",
+            "variable": {
+              "name": "park-summary-profile",
+              "before": "baseline",
+              "after": "candidate-v1"
+            },
+            "serverCommit": "abcdef1",
+            "clientState": "synthetic CI",
+            "loadPercentBefore": 30,
+            "loadPercentAfter": 30,
+            "outcome": "NEW_REQUEST",
+            "observation": "Synthetic integration fixture."
+          }
+          '@ | Set-Content $spec -Encoding ASCII
+
+          .\scripts\run-p0-validation.ps1 -SkipTests -UserContentUpload $upload -UserContentDownload $returned -RouteLogBefore $before -RouteLogAfter $after -ParkSpec $spec -OutputDir "server\captures\ci-p0-validation"
+
+          if (-not (Test-Path "server\captures\ci-p0-validation\upload-download-proof.json")) { throw "return proof missing" }
+          if (-not (Test-Path "server\captures\ci-p0-validation\before-after.diff.json")) { throw "route diff missing" }
+          if (-not (Test-Path "server\captures\ci-p0-validation\park-experiments.jsonl")) { throw "Park ledger missing" }
+) { throw "invalid snapshot SHA-256" }
           }
 
       - name: Prove Mission 14 Granite-aware P0 wrapper
