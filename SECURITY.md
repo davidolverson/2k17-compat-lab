@@ -18,6 +18,10 @@ Use GitHub's private vulnerability reporting for this repository (Security tab,
 - a weakness in the relay or protocol tooling that could be abused against a
   running service.
 
+If the "Report a vulnerability" button is not shown, private reporting has not
+been switched on for this repository yet. In that case open an issue titled
+"security contact request" with no details in it, and wait to be contacted.
+
 Include the file, commit and line. Do not paste the leaked value itself into
 the report; say where it is.
 
