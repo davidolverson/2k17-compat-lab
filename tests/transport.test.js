@@ -1,23 +1,15 @@
 'use strict';
 
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { Readable } = require('node:stream');
 
 const { CaptureStore } = require('../server/src/capture/capture-store');
-const {
-  redactHeaders,
-  sanitizeCaptureRecord,
-} = require('../server/src/capture/sanitize');
-const {
-  getResponseProfile,
-  selectResponseProfile,
-} = require('../server/src/response/profiles');
-const {
-  collectRequestBody,
-  requestDescriptor,
-} = require('../server/src/transport/http-capture');
+const { redactHeaders, sanitizeCaptureRecord } = require('../server/src/capture/sanitize');
+const { getResponseProfile, selectResponseProfile } = require('../server/src/response/profiles');
+const { collectRequestBody, requestDescriptor } = require('../server/src/transport/http-capture');
 
 module.exports = function registerTransportTests({ test, assert }) {
   test('transport sanitizer redacts sensitive headers', () => {
@@ -26,30 +18,21 @@ module.exports = function registerTransportTests({ test, assert }) {
       Cookie: 'session=secret',
       'X-Test': 'ok',
     });
-
     assert.equal(headers.Authorization, '[REDACTED]');
     assert.equal(headers.Cookie, '[REDACTED]');
     assert.equal(headers['X-Test'], 'ok');
   });
 
   test('capture store keeps raw bytes local and exports metadata-only sanitized fixture', () => {
-    const root = fs.mkdtempSync(
-      path.join(os.tmpdir(), '2k17-compat-capture-test-'),
-    );
-
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), '2k17-compat-capture-test-'));
     try {
-      const rawDir = path.join(root, 'raw');
-      const sanitizedDir = path.join(root, 'sanitized');
-
       const store = new CaptureStore({
-        rawDir,
-        sanitizedDir,
+        rawDir: path.join(root, 'raw'),
+        sanitizedDir: path.join(root, 'sanitized'),
         idFactory: () => 'capture_test_001',
         now: () => new Date('2026-10-05T00:00:00Z'),
       });
-
       const body = Buffer.from([0x00, 0x01, 0x02, 0xfe, 0xff]);
-
       const saved = store.persistRequest({
         method: 'POST',
         path: '/synthetic',
@@ -63,37 +46,24 @@ module.exports = function registerTransportTests({ test, assert }) {
       });
 
       assert.deepEqual(fs.readFileSync(saved.bodyPath), body);
+      assert.equal(saved.record.bodyLength, body.length);
+      assert.equal(saved.record.storedBodyLength, body.length);
 
-      const exported = store.exportSanitized(saved.record);
       const sanitized = JSON.parse(
-        fs.readFileSync(exported.filePath, 'utf8'),
+        fs.readFileSync(store.exportSanitized(saved.record).filePath, 'utf8'),
       );
-
-      assert.equal(
-        sanitized.headers.authorization,
-        '[REDACTED]',
-      );
+      assert.equal(sanitized.headers.authorization, '[REDACTED]');
       assert.equal(sanitized.query, '[REDACTED_QUERY]');
       assert.equal(sanitized.bodyLength, body.length);
-      assert.equal(
-        Object.prototype.hasOwnProperty.call(sanitized, 'bodyRaw'),
-        false,
-      );
-      assert.equal(
-        Object.prototype.hasOwnProperty.call(sanitized, 'body'),
-        false,
-      );
+      assert.equal('bodyRaw' in sanitized, false);
+      assert.equal('body' in sanitized, false);
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }
   });
 
   test('unknown route selects capture-only 404 by default', () => {
-    const profile = selectResponseProfile(
-      { method: 'GET', path: '/unknown' },
-      [],
-    );
-
+    const profile = selectResponseProfile({ method: 'GET', path: '/unknown' }, []);
     assert.equal(profile.id, 'CAPTURE_ONLY_404');
     assert.equal(profile.status, 404);
     assert.equal(profile.body.length, 0);
@@ -102,52 +72,33 @@ module.exports = function registerTransportTests({ test, assert }) {
   test('response rules select an explicit test-only profile', () => {
     const profile = selectResponseProfile(
       { method: 'POST', path: '/synthetic' },
-      [
-        {
-          method: 'POST',
-          pathEquals: '/synthetic',
-          profile: 'TEST_ONLY_EMPTY_200',
-        },
-      ],
+      [{ method: 'POST', pathEquals: '/synthetic', profile: 'TEST_ONLY_EMPTY_200' }],
     );
-
     assert.equal(profile.id, 'TEST_ONLY_EMPTY_200');
     assert.equal(profile.testOnly, true);
   });
 
   test('cross-version empty field-list response is visibly test-only', () => {
-    const profile = getResponseProfile(
-      'TEST_ONLY_EMPTY_BINARY_FIELD_LIST',
-    );
-
-    assert.equal(
-      profile.evidenceClass,
-      'CROSS_VERSION_REFERENCE_TEST_ONLY',
-    );
+    const profile = getResponseProfile('TEST_ONLY_EMPTY_BINARY_FIELD_LIST');
+    assert.equal(profile.evidenceClass, 'CROSS_VERSION_REFERENCE_TEST_ONLY');
     assert.equal(profile.testOnly, true);
     assert.equal(profile.body.length, 16);
     assert.deepEqual(profile.body, Buffer.alloc(16));
   });
 
   test('request descriptor records VCFIELDLIST_SIZE without requiring it', () => {
-    const request = {
+    const descriptor = requestDescriptor({
       method: 'POST',
       url: '/synthetic?a=b',
       httpVersion: '1.1',
-      headers: {
-        Host: 'example.invalid',
-        VCFIELDLIST_SIZE: '32',
-      },
+      headers: { Host: 'example.invalid', VCFIELDLIST_SIZE: '32' },
       socket: {
         getProtocol: () => 'TLSv1.2',
         getCipher: () => ({ name: 'SYNTHETIC-CIPHER' }),
         servername: 'example.invalid',
         alpnProtocol: null,
       },
-    };
-
-    const descriptor = requestDescriptor(request);
-
+    });
     assert.equal(descriptor.path, '/synthetic');
     assert.equal(descriptor.query, 'a=b');
     assert.equal(descriptor.vcFieldListSize, 32);
@@ -159,41 +110,37 @@ module.exports = function registerTransportTests({ test, assert }) {
       method: 'POST',
       url: '/',
       httpVersion: '1.1',
-      headers: {
-        vcfieldlist_size: 'not-a-number',
-      },
+      headers: { vcfieldlist_size: 'not-a-number' },
       socket: {},
     });
-
     assert.equal(descriptor.vcFieldListSize, null);
   });
 
   test('bounded body collector accepts bytes within limit', async () => {
-    const request = Readable.from([
-      Buffer.from('abc'),
-      Buffer.from('def'),
-    ]);
-
-    const collected = await collectRequestBody(request, {
-      maxBodyBytes: 6,
-    });
-
+    const collected = await collectRequestBody(
+      Readable.from([Buffer.from('abc'), Buffer.from('def')]),
+      { maxBodyBytes: 6 },
+    );
     assert.equal(collected.totalBytes, 6);
+    assert.equal(collected.storedBytes, 6);
+    assert.equal(collected.truncated, false);
     assert.deepEqual(collected.body, Buffer.from('abcdef'));
   });
 
-  test('bounded body collector hashes full body while retaining only configured prefix', async () => {
-    const request = Readable.from([Buffer.from('abcdef')]);
-
-    const collected = await collectRequestBody(request, {
-      maxBodyBytes: 5,
-    });
-
+  test('bounded body collector keeps a prefix and hashes the full stream', async () => {
+    const full = Buffer.from('abcdef');
+    const collected = await collectRequestBody(
+      Readable.from([full.subarray(0, 2), full.subarray(2)]),
+      { maxBodyBytes: 5 },
+    );
     assert.equal(collected.totalBytes, 6);
     assert.equal(collected.storedBytes, 5);
     assert.equal(collected.truncated, true);
     assert.deepEqual(collected.body, Buffer.from('abcde'));
-    assert.match(collected.bodySha256, /^[0-9a-f]{64}$/);
+    assert.equal(
+      collected.bodySha256,
+      crypto.createHash('sha256').update(full).digest('hex'),
+    );
   });
 
   test('sanitized capture never copies a raw query string', () => {
@@ -209,7 +156,6 @@ module.exports = function registerTransportTests({ test, assert }) {
       bodyPath: 'raw-local/file.bin',
       tls: null,
     });
-
     assert.equal(sanitized.query, '[REDACTED_QUERY]');
   });
 };
