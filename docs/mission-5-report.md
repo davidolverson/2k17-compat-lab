@@ -154,13 +154,19 @@ Mission 5 covers:
 
 ## CI status
 
-A GitHub Actions workflow has been added to run:
+GitHub Actions ran the complete branch test suite on Node 20 after the Mission 5 changes.
 
-`npm test`
+Observed result:
 
-on the working branch, main, and pull requests.
+```
+RESULT 36/36 tests passed
+workflow conclusion: success
+run id: 37263023652
+```
 
-At the time this report was authored, no completed workflow result had yet been observed for the new workflow. Do not report CI green until GitHub returns an actual run result.
+This is a real CI execution against commit `f3f4a4e37b1f0ee2a427676166e9e8308795de4a`.
+
+The user's Windows checkout has still not been freshly executed during this mission, so Windows-local status remains separate from CI status.
 
 ## Protocol claims added by Mission 5
 
