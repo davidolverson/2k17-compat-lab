@@ -151,6 +151,7 @@ function createCaptureHandler(options) {
         body: collected.body,
         bodyTruncated: collected.truncated,
         responseProfile: profile,
+        evidenceContext: options.evidenceContext || null,
       });
 
       let sanitizedPath = null;
