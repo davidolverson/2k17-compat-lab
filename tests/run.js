@@ -192,6 +192,7 @@ test('tryParseFieldList returns structured failure instead of throwing', () => {
 
 require('./transport.test')({ test, assert });
 require('./evidence.test')({ test, assert });
+require('./public-evidence.test')({ test, assert });
 
 async function main() {
   let passed = 0;
