@@ -11,7 +11,8 @@
     "capture:ws": "node scripts/start-websocket-capture.js server/realtime.websocket.local.json",
     "capture:udp": "node scripts/start-udp-capture.js server/realtime.udp.local.json",
     "compare:artifact": "node scripts/compare-cache-analysis.js",
-    "analyze:request": "node scripts/analyze-request-capture.js"
+    "analyze:request": "node scripts/analyze-request-capture.js",
+    "reconstruct:parallel": "node scripts/run-parallel-reconstruction.js"
   },
   "engines": {
     "node": ">=16"
