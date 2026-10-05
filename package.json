@@ -14,7 +14,8 @@
     "analyze:request": "node scripts/analyze-request-capture.js",
     "reconstruct:parallel": "node scripts/run-parallel-reconstruction.js",
     "handoff:claude": "node scripts/build-claude-handoff.js",
-    "smoke:parallel": "node scripts/smoke-parallel-reconstruction.js"
+    "smoke:parallel": "node scripts/smoke-parallel-reconstruction.js",
+    "summarize:probe": "node scripts/summarize-probe-log.js"
   },
   "engines": {
     "node": ">=16"
