@@ -58,7 +58,11 @@ class ByteExactContentStore {
     atomicWrite(paths.body, buffer);
     atomicWrite(paths.metadata, JSON.stringify(record, null, 2) + '\n');
 
-    return { record, ...paths };
+    return {
+      record,
+      bodyPath: paths.body,
+      metadataPath: paths.metadata,
+    };
   }
 
   get(key) {
@@ -74,7 +78,12 @@ class ByteExactContentStore {
       throw new Error('stored content SHA-256 does not match metadata');
     }
 
-    return { record, body, ...paths };
+    return {
+      record,
+      body,
+      bodyPath: paths.body,
+      metadataPath: paths.metadata,
+    };
   }
 }
 
