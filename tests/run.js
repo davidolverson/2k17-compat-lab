@@ -219,6 +219,7 @@ require('./parallel-pipeline.test')({ test, assert });
 require('./request-analysis.test')({ test, assert });
 require('./artifact-analysis.test')({ test, assert });
 require('./handoff.test')({ test, assert });
+require('./probe-summary.test')({ test, assert });
 
 async function main() {
   let passed = 0;
