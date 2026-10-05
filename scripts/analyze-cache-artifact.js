@@ -21,7 +21,32 @@ function main(argv = process.argv.slice(2)) {
     return 2;
   }
 
-  const report = analyzeFile(input);
+  let nextProgress = 128 * 1024 * 1024;
+  const report = analyzeFile(input, {
+    onProgress: ({ bytesProcessed, totalBytes, referenceBytesScanned, referenceScanBudgetBytes }) => {
+      if (bytesProcessed < nextProgress && bytesProcessed < totalBytes) return;
+      const pct = totalBytes === 0
+        ? 100
+        : ((bytesProcessed / totalBytes) * 100).toFixed(1);
+      process.stdout.write(
+        'PROGRESS ' +
+          bytesProcessed +
+          '/' +
+          totalBytes +
+          ' (' +
+          pct +
+          '%)' +
+          ' REFERENCE_SCAN ' +
+          referenceBytesScanned +
+          '/' +
+          referenceScanBudgetBytes +
+          '\n',
+      );
+      while (nextProgress <= bytesProcessed) {
+        nextProgress += 128 * 1024 * 1024;
+      }
+    },
+  });
 
   const output = explicitOutput
     ? path.resolve(explicitOutput)
@@ -44,6 +69,8 @@ function main(argv = process.argv.slice(2)) {
       'PROTOCOL_STRINGS ' + report.relevantStrings.length + '\n' +
       'REFERENCE_CODEC_CANDIDATES ' +
         report.referenceFieldListCandidates.length + '\n' +
+      'REFERENCE_SCAN_MODE ' + report.referenceScanMode + '\n' +
+      'REFERENCE_BYTES_SCANNED ' + report.referenceBytesScanned + '\n' +
       'OUTPUT ' + output + '\n',
   );
 
