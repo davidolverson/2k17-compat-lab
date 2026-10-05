@@ -23,22 +23,44 @@ const INTERESTING_CALLS = Object.freeze([
   'GetLobbyChatEntry',
 ]);
 
+const INTERESTING_CALLBACKS = Object.freeze([
+  'LobbyMatchList_t',
+  'LobbyCreated_t',
+  'LobbyEnter_t',
+  'LobbyDataUpdate_t',
+  'LobbyChatUpdate_t',
+  'LobbyChatMsg_t',
+]);
+
 function classifyLine(line, index = 0) {
   const text = String(line || '');
   for (const call of INTERESTING_CALLS) {
     if (text.includes(call)) {
       return {
         sourceLine: index + 1,
-        call,
+        kind: 'call',
+        name: call,
       };
     }
   }
+
+  for (const callback of INTERESTING_CALLBACKS) {
+    if (text.includes(callback)) {
+      return {
+        sourceLine: index + 1,
+        kind: 'callback',
+        name: callback,
+      };
+    }
+  }
+
   return null;
 }
 
 function summarizeSteamLog(text) {
   const events = [];
-  const counts = new Map();
+  const callCounts = new Map();
+  const callbackCounts = new Map();
 
   String(text || '')
     .split(/\r?\n/)
@@ -46,23 +68,34 @@ function summarizeSteamLog(text) {
       const event = classifyLine(line, index);
       if (!event) return;
       events.push(event);
-      counts.set(event.call, (counts.get(event.call) || 0) + 1);
+      const target = event.kind === 'callback' ? callbackCounts : callCounts;
+      target.set(event.name, (target.get(event.name) || 0) + 1);
     });
 
-  const calls = Array.from(counts.entries())
+  const calls = Array.from(callCounts.entries())
     .map(([call, count]) => ({ call, count }))
     .sort((a, b) => a.call.localeCompare(b.call));
+  const callbacks = Array.from(callbackCounts.entries())
+    .map(([callback, count]) => ({ callback, count }))
+    .sort((a, b) => a.callback.localeCompare(b.callback));
 
   return {
     schema: '2k17-compat-lab.steam-lobby-observation.v1',
     evidenceClass: 'LOCAL_LOG_SUMMARY',
-    totalInterestingCalls: events.length,
+    totalInterestingEvents: events.length,
+    totalInterestingCalls: calls.reduce((sum, entry) => sum + entry.count, 0),
+    totalInterestingCallbacks: callbacks.reduce((sum, entry) => sum + entry.count, 0),
     calls,
+    callbacks,
     events,
     hypothesisRelevance: {
       H3_LOBBY_STATE_DEPENDENCY:
         calls.some((entry) =>
           ['RequestLobbyList', 'CreateLobby', 'JoinLobby'].includes(entry.call),
+        ),
+      H3_CALLBACK_ACTIVITY:
+        callbacks.some((entry) =>
+          ['LobbyMatchList_t', 'LobbyCreated_t', 'LobbyEnter_t'].includes(entry.callback),
         ),
     },
     claimsPromoted: [],
@@ -103,7 +136,9 @@ function main(argv = process.argv.slice(2)) {
   process.stdout.write(
     'STEAM_LOBBY_SUMMARY_READY\n' +
       'INTERESTING_CALLS ' + report.totalInterestingCalls + '\n' +
+      'INTERESTING_CALLBACKS ' + report.totalInterestingCallbacks + '\n' +
       'H3_RELEVANT ' + report.hypothesisRelevance.H3_LOBBY_STATE_DEPENDENCY + '\n' +
+      'H3_CALLBACK_ACTIVITY ' + report.hypothesisRelevance.H3_CALLBACK_ACTIVITY + '\n' +
       'CLAIMS_PROMOTED 0\n' +
       'OUTPUT ' + output + '\n',
   );
@@ -124,6 +159,7 @@ if (require.main === module) {
 
 module.exports = {
   INTERESTING_CALLS,
+  INTERESTING_CALLBACKS,
   classifyLine,
   summarizeSteamLog,
   main,
