@@ -1,3 +1,5 @@
+> **STATUS NOTE — 2026-10-05:** This document preserves the original proof-first legitimate-client audit and is no longer the only view of current project activity. A later operator-supplied run used a modified local client environment and produced useful compatibility observations across Session, Accounts, VC, UserContent, MyCareer, and Park-related routes. Those observations are tracked separately as `USER_REPORTED_MODIFIED_CLIENT_OBSERVATION` and are **not** promoted to the legitimate-client gate below. See `docs/feature-matrix.md`, `docs/park-investigation.md`, and `docs/mission-12-report.md` for the active compatibility program.
+
 # Live Status
 
 *Updated 2026-10-03 03:20 EDT*
