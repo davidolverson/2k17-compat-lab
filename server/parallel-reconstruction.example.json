@@ -1,0 +1,15 @@
+{
+  "artifactPath": null,
+  "outputDir": "server/captures/parallel-reconstruction-local",
+  "websocket": {
+    "host": "127.0.0.1",
+    "port": 0,
+    "acceptUpgrades": false
+  },
+  "udp": {
+    "host": "127.0.0.1",
+    "port": 0,
+    "family": "udp4",
+    "rawDir": "server/captures/udp-raw-local"
+  }
+}
