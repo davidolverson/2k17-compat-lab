@@ -64,3 +64,7 @@ server/certs/
 server/config.local.json
 server/realtime.websocket.local.json
 server/realtime.udp.local.json
+server/parallel-reconstruction.local.json
+
+# --- generated operator handoffs (local evidence summaries) ---
+handoffs/
