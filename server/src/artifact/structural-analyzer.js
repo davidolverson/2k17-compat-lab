@@ -10,6 +10,7 @@ const {
 const DEFAULT_WINDOW = 64 * 1024;
 const DEFAULT_CHUNK = 1024 * 1024;
 const MAX_PROTOCOL_STRINGS = 500;
+const DEFAULT_REFERENCE_SCAN_BUDGET = 8 * 1024 * 1024;
 
 const MAGIC_SIGNATURES = Object.freeze([
   { name: 'gzip', bytes: Buffer.from([0x1f, 0x8b]) },
@@ -248,12 +249,26 @@ function analyzeFile(filePath, options = {}) {
     options.chunkSize === undefined ? DEFAULT_CHUNK : Number(options.chunkSize);
   const windowSize =
     options.windowSize === undefined ? DEFAULT_WINDOW : Number(options.windowSize);
+  const referenceScanBudgetBytes =
+    options.referenceScanBudgetBytes === undefined
+      ? DEFAULT_REFERENCE_SCAN_BUDGET
+      : Number(options.referenceScanBudgetBytes);
+  const onProgress =
+    typeof options.onProgress === 'function' ? options.onProgress : null;
 
   if (!Number.isSafeInteger(chunkSize) || chunkSize < 4096) {
     throw new RangeError('chunkSize must be an integer >= 4096');
   }
   if (!Number.isSafeInteger(windowSize) || windowSize < 256) {
     throw new RangeError('windowSize must be an integer >= 256');
+  }
+  if (
+    !Number.isSafeInteger(referenceScanBudgetBytes) ||
+    referenceScanBudgetBytes < 0
+  ) {
+    throw new RangeError(
+      'referenceScanBudgetBytes must be a non-negative safe integer',
+    );
   }
 
   const hash = crypto.createHash('sha256');
@@ -265,6 +280,7 @@ function analyzeFile(filePath, options = {}) {
   const referenceFieldListCandidates = [];
   let position = 0;
   let carry = Buffer.alloc(0);
+  let referenceBytesScanned = 0;
 
   try {
     while (true) {
@@ -307,21 +323,45 @@ function analyzeFile(filePath, options = {}) {
         });
       }
 
-      if (referenceFieldListCandidates.length < 32) {
-        const probe = chunk.subarray(0, Math.min(chunk.length, 512 * 1024));
-        referenceFieldListCandidates.push(
-          ...scanReferenceFieldListCandidates(probe, position, {
-            ...options,
-            maximumCandidates:
-              32 - referenceFieldListCandidates.length,
-          }),
+      if (
+        referenceFieldListCandidates.length < 32 &&
+        referenceBytesScanned < referenceScanBudgetBytes
+      ) {
+        const remainingBudget =
+          referenceScanBudgetBytes - referenceBytesScanned;
+        const probeLength = Math.min(
+          chunk.length,
+          512 * 1024,
+          remainingBudget,
         );
+
+        if (probeLength >= 16) {
+          const probe = chunk.subarray(0, probeLength);
+          referenceFieldListCandidates.push(
+            ...scanReferenceFieldListCandidates(probe, position, {
+              ...options,
+              maximumCandidates:
+                32 - referenceFieldListCandidates.length,
+            }),
+          );
+          referenceBytesScanned += probeLength;
+        }
       }
 
       carry = combined.subarray(
         Math.max(0, combined.length - 512),
       );
       position += bytesRead;
+
+      if (onProgress) {
+        onProgress({
+          bytesProcessed: position,
+          totalBytes: stat.size,
+          fraction: stat.size === 0 ? 1 : position / stat.size,
+          referenceBytesScanned,
+          referenceScanBudgetBytes,
+        });
+      }
     }
   } finally {
     fs.closeSync(fd);
@@ -353,6 +393,12 @@ function analyzeFile(filePath, options = {}) {
     analysisMode: 'READ_ONLY_STREAMING',
     windowSize,
     chunkSize,
+    referenceScanBudgetBytes,
+    referenceBytesScanned,
+    referenceScanMode:
+      referenceBytesScanned < stat.size
+        ? 'BOUNDED_CROSS_VERSION_REFERENCE_SCAN'
+        : 'FULL_CROSS_VERSION_REFERENCE_SCAN',
     magic: uniqueMagic,
     relevantStrings: uniqueStrings.slice(0, MAX_PROTOCOL_STRINGS),
     entropy,
