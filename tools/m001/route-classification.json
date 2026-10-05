@@ -4,7 +4,19 @@
   "runtime": "granite-2k17 Source/Server.js (dispatch order) + Services/Guard2K17.js + Services/Park/Park2K17.js",
   "rules": [
     {
-      "match": ["attributes/get", "attributes/price", "mycareerv3/getmycareerattributesofdefaultsave", "mycareerv3/addgrindpoints", "mycareer/save", "inventory/getwithtag", "inventory/get_with_tag", "usercontent/list", "usercontent/list2", "usercontent/userlist", "userdatasync/list"],
+      "match": [
+        "attributes/get",
+        "attributes/price",
+        "mycareerv3/getmycareerattributesofdefaultsave",
+        "mycareerv3/addgrindpoints",
+        "mycareer/save",
+        "inventory/getwithtag",
+        "inventory/get_with_tag",
+        "usercontent/list",
+        "usercontent/list2",
+        "usercontent/userlist",
+        "userdatasync/list"
+      ],
       "handler": "Guard2K17.AckOnly",
       "handler_source": "local-2k17-safety-guard",
       "response_class": "intentional",
@@ -13,7 +25,11 @@
       "notes": "Deliberate data-free RESULT=SUCCESS so no 2K19-shaped data reaches a 2K17 save. Intentional as a SAFETY measure; says nothing about what the original service returned."
     },
     {
-      "match": ["parkgamestatsv3/parksummary", "parkgamestatsv3/parkuser", "parkgamestatsv3/parkcareer"],
+      "match": [
+        "parkgamestatsv3/parksummary",
+        "parkgamestatsv3/parkuser",
+        "parkgamestatsv3/parkcareer"
+      ],
       "handler": "Guard2K17.AckOnly",
       "handler_source": "local-2k17-safety-guard",
       "response_class": "generic-fallback",
@@ -22,7 +38,9 @@
       "notes": "A Park data query answered with a data-free ack. The guard is deliberate, but for the Park path this is functionally a fallback: no Park field is returned."
     },
     {
-      "match": ["session/login"],
+      "match": [
+        "session/login"
+      ],
       "handler": "Session/Login.Build",
       "handler_source": "granite-2k19",
       "response_class": "reference-derived",
@@ -30,7 +48,9 @@
       "notes": "2K19 login reply shape with the endpoint table ported to /nba/2k17. Client acceptance (it proceeds to authenticated calls) is OBSERVED; field semantics are not independently evidenced for 2K17."
     },
     {
-      "match": ["session/update"],
+      "match": [
+        "session/update"
+      ],
       "handler": "Session/Update.Build",
       "handler_source": "granite-2k19",
       "response_class": "reference-derived",
@@ -38,7 +58,10 @@
       "notes": "2K19 keep-alive reply shape. OBSERVED: the 2K17 client keeps the same session across repeated two-minute keep-alives."
     },
     {
-      "match": ["usercontent/upload", "userdatasync/upload"],
+      "match": [
+        "usercontent/upload",
+        "userdatasync/upload"
+      ],
       "handler": "UserContent/Upload.Build",
       "handler_source": "granite-2k19+local-BNH!-patch",
       "response_class": "reference-derived",
@@ -46,7 +69,9 @@
       "notes": "2K19 upload handler, locally extended to accept the 2K17 'BNH!' bundle magic (the magic itself is OBSERVED in 2K17 uploads)."
     },
     {
-      "match": ["strings/filter"],
+      "match": [
+        "strings/filter"
+      ],
       "handler": "Misc/StringsFilter.Build",
       "handler_source": "granite-2k19",
       "response_class": "reference-derived",
@@ -54,7 +79,9 @@
       "notes": "Allow-all text filter modelled on 2K19."
     },
     {
-      "prefix": ["vcreport/"],
+      "prefix": [
+        "vcreport/"
+      ],
       "handler": "VCReport/Batch (Acknowledge)",
       "handler_source": "granite-2k19",
       "response_class": "reference-derived",
@@ -63,7 +90,10 @@
       "notes": "Telemetry batch acknowledged without being interpreted."
     },
     {
-      "match": ["parkgamestatsv3/parkchooseaffiliation", "parkgamestatsv3/parkchangeaffiliation"],
+      "match": [
+        "parkgamestatsv3/parkchooseaffiliation",
+        "parkgamestatsv3/parkchangeaffiliation"
+      ],
       "handler": "Park2K17.Build (Summary)",
       "handler_source": "local-2k17-experiment",
       "response_class": "intentional",
@@ -72,7 +102,9 @@
       "notes": "EXPERIMENTAL reply. Field NAMES are strings resident in the 2K17 client; the reply SHAPE and every value are invented. Not a protocol fact."
     },
     {
-      "prefix": ["parkgamestatsv3/"],
+      "prefix": [
+        "parkgamestatsv3/"
+      ],
       "exclude_substring": "crew",
       "handler": "Park2K17.Build (default branch)",
       "handler_source": "local-2k17-experiment",
@@ -82,7 +114,9 @@
       "notes": "Reaches a named local handler, but that handler's default branch returns a bare RESULT=SUCCESS. Functionally identical to the catch-all."
     },
     {
-      "prefix": ["probe2k17/"],
+      "prefix": [
+        "probe2k17/"
+      ],
       "handler": "catch-all (unmodeled)",
       "handler_source": "runtime-catch-all",
       "response_class": "generic-fallback",
@@ -91,32 +125,57 @@
       "notes": "Synthetic probe URL assigned to an endpoint id the client looks up but whose service/method name is unknown. The id reaching the server is OBSERVED; everything about the expected reply is unknown."
     },
     {
-      "match": ["accounts/get", "account/get"],
+      "match": [
+        "accounts/get",
+        "account/get"
+      ],
       "handler": "Account/GetAccount.Build",
       "handler_source": "granite-2k19",
       "response_class": "reference-derived",
       "evidence_class": "REFERENCE"
     },
     {
-      "match": ["virtualcurrency/balance"],
+      "match": [
+        "virtualcurrency/balance"
+      ],
       "handler": "VirtualCurrency/Balance.Build",
       "handler_source": "granite-2k19",
       "response_class": "reference-derived",
       "evidence_class": "REFERENCE"
     },
     {
-      "match": ["virtualcurrency/get_consumable_info"],
+      "match": [
+        "virtualcurrency/get_consumable_info"
+      ],
       "handler": "VirtualCurrency/GetConsumableInfo.Build",
       "handler_source": "granite-2k19",
       "response_class": "reference-derived",
       "evidence_class": "REFERENCE"
     },
     {
-      "prefix": ["dlc/"],
+      "prefix": [
+        "dlc/"
+      ],
       "handler": "Misc/CheckDLCInventory.Build",
       "handler_source": "granite-2k19",
       "response_class": "reference-derived",
       "evidence_class": "REFERENCE"
+    },
+    {
+      "match": [
+        "park/search",
+        "park/create",
+        "park/update",
+        "park/interlockedupdate",
+        "park/leave",
+        "park/remove"
+      ],
+      "handler": "ParkMatch2K17.Build",
+      "handler_source": "local-2k17-experiment",
+      "response_class": "intentional",
+      "evidence_class": "HYPOTHESIS",
+      "experimental": true,
+      "notes": "EXPERIMENTAL matchmaking reply built by the live lane (uncommitted when recorded). Before this handler existed these routes fell to the catch-all, so a ledger generated from that period is flagged as a mismatch through the server log. Field requirements are REPORTED as read from the client reply validator; values are echoed, random, constant or placeholder. See evidence/m001/park-search.success-analysis.json."
     }
   ],
   "default": {

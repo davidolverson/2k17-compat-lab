@@ -1,0 +1,21 @@
+{
+  "schema_version": 0,
+  "kind": "sanitized-request",
+  "title": "nba2k17-pc",
+  "method": "POST",
+  "path": "/nba/2k17/ParkGameStatsV3/TopRepPlayer",
+  "route": "parkgamestatsv3/toprepplayer",
+  "captured_at": "2026-10-05T10:09:13.690Z",
+  "headers": {
+    "user-agent": "VISUAL_CONCEPTS_WIN64/17.0",
+    "content-type": "application/octet-stream",
+    "vcfieldlist_size": "16",
+    "content-length": "16"
+  },
+  "body_bytes": 16,
+  "declared_fieldlist_bytes": 16,
+  "parse_status": "ok",
+  "fields": [],
+  "data_bytes": 0,
+  "trailing_bytes": 0
+}

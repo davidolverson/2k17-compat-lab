@@ -71,7 +71,8 @@ Test('route classification: guard wins, unknown routes fall to the catch-all', (
     Assert.equal(Ledger.Classify('parkgamestatsv3/parksummary', Rules).response_class, 'generic-fallback');
     Assert.equal(Ledger.Classify('parkgamestatsv3/parkchooseaffiliation', Rules).experimental, true);
     Assert.equal(Ledger.Classify('parkgamestatsv3/toprepplayer', Rules).response_class, 'generic-fallback');
-    Assert.equal(Ledger.Classify('park/search', Rules).handler_source, 'runtime-catch-all');
+    Assert.equal(Ledger.Classify('park/search', Rules).experimental, true);
+    Assert.equal(Ledger.Classify('never/seen', Rules).handler_source, 'runtime-catch-all');
     Assert.equal(Ledger.Classify('session/update', Rules).evidence_class, 'REFERENCE');
     for (const Rule of [...Rules.rules, Rules.default]) {
         Assert.notEqual(Rule.evidence_class, 'OBSERVED', 'no reply on this path is evidenced as an original-service reply');

@@ -287,3 +287,75 @@ line so far: `GAME_STATS:PARK_REP` (`0x92E77186`) and `PARK_MATCH:SEARCH`
 - Tagging the baseline: the runtime tree had another session's uncommitted
   edits in it.
 - Nothing was pushed. Issue #1 and PR #2 are unchanged.
+
+---
+
+## Update 10:15 UTC — `mmg/park/search` success reply and what follows it
+
+Written from the offline lane again. The live lane was mid-experiment, so its
+tree was not committed from here; instead a source-only snapshot was stored in
+the runtime repo under `refs/m001/snapshots/*` → `b1e4f1e` using a temporary
+index (HEAD, index and working tree untouched). Regression against that working
+tree: **PASS 26/26**.
+
+Files: `evidence/m001/park-search.outcome-comparison.json`,
+`evidence/m001/park-search.success-analysis.json`,
+`sanitized-fixtures/m001/park-search-success/`, ledger
+`evidence/m001/attempt-D-search-success-relay.ledger.json`.
+
+### Correction: the 29-field reply did not advance the client, it crashed it
+
+The two sessions that sent "only one search" after a 29-field `SUCCESS`
+(09:58 and 10:01) sent **no further HTTP request of any kind**. The handler
+source records why: the client crashed on that reply because field `0x3FA02989`
+was absent. A 4-byte zero placeholder was added, giving the 30-field reply. The
+29-field version of the source was never saved; it exists only as its captured
+output.
+
+### Outcome by reply kind (OBSERVED, HTTP captures + relay log)
+
+| Reply to `park/search` | Searches | What the client did |
+|---|---|---|
+| bare `SUCCESS` (catch-all) | 2 | returned to menu-type calls within ~6 s |
+| `NOT_FOUND` + TTL | 7 | re-searched at 2, 4, 8, 16, 32, 64 s; nothing else |
+| `SUCCESS`, 29 fields | 1 + 1 | silence (REPORTED: client crash) |
+| `SUCCESS`, 30 fields, **nothing useful on the relay port** | 249 | `park/leave` ~6 ms after each search, then search again: three cycles 10 s apart, then ~245 cycles at 20–30 ms each over ~7 s |
+| `SUCCESS`, 30 fields, **relay listening on UDP 28091** | 1 per attempt, 3 attempts | UDP client connects to the relay in the same second, disconnects **10 s later**; no further `park/*` call; menu-type calls resume ~40 s later |
+
+The last row reproduced three times in a row (10:05:25, 10:07:41, 10:09:13).
+
+### The next real dependency is the relay conversation
+
+`ParkRep → mmg/park/search → UDP relay (address taken from the search reply) → ?`
+
+- **OBSERVED:** with the 30-field reply the client opens a UDP conversation to
+  the address in that reply. This is the first evidence in M001 that the 2K17
+  Park path uses a relay, and it meets the bar set for starting relay work.
+- **Caveat:** the address is one *we* supplied. This shows the client honours a
+  relay address in a search reply; it does not show what the original service
+  put there.
+- **OBSERVED:** the relay session ends after 10 s every time. Whether that is a
+  client timeout waiting for something the relay did not send, or the relay
+  dropping the client, is not determined here. That is the current blocker, and
+  it lives in the UDP exchange, not in HTTP.
+- **OBSERVED:** there is still no `World/connect` and no `park/create`.
+- The 10 s also appeared with no working relay (the three 10 s cycles), which
+  suggests a fixed client-side wait, but the two cases have not been separated.
+
+### Where the 30 fields come from
+
+Full table in `park-search.success-analysis.json`. In short: 16 fields are the
+requester's own data echoed back, two more repeat the requester id, the relay
+address comes from local config, and the rest (ticket, correlation id, sequence,
+relay token, a 4-byte placeholder, five constants) are invented or placeholder.
+Which fields are *required* is REPORTED by the live lane from reading the
+client's reply validator and was not re-verified here. Nothing in the reply is
+an observed original-service value, and it has only been exercised with one
+player in the park.
+
+### Not done
+
+- The live tree is still uncommitted on `main`; the snapshot ref is a safety
+  copy, not the freeze commit.
+- No subtraction experiments (step 7) — they need the live client.
+- Loading percentage / on-screen state after the relay connect was not captured.
