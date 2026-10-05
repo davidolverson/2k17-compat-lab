@@ -15,7 +15,10 @@
     "reconstruct:parallel": "node scripts/run-parallel-reconstruction.js",
     "handoff:claude": "node scripts/build-claude-handoff.js",
     "smoke:parallel": "node scripts/smoke-parallel-reconstruction.js",
-    "summarize:probe": "node scripts/summarize-probe-log.js"
+    "summarize:probe": "node scripts/summarize-probe-log.js",
+    "roundtrip:user-content": "node scripts/test-user-content-roundtrip.js",
+    "diff:probe": "node scripts/diff-probe-summaries.js",
+    "record:park-experiment": "node scripts/record-park-experiment.js"
   },
   "engines": {
     "node": ">=16"
