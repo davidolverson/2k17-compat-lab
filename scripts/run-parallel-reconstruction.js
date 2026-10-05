@@ -48,6 +48,15 @@ function normalizeConfig(input = {}) {
   };
 }
 
+function stripUtf8Bom(text) {
+  return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
+}
+
+function parseJsonFile(filePath) {
+  const raw = fs.readFileSync(path.resolve(filePath), 'utf8');
+  return JSON.parse(stripUtf8Bom(raw));
+}
+
 function writeJson(filePath, value) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, JSON.stringify(value, null, 2) + '\n');
@@ -56,7 +65,7 @@ function writeJson(filePath, value) {
 async function main(argv = process.argv.slice(2)) {
   const configPath = argv[0];
   const rawConfig = configPath
-    ? JSON.parse(fs.readFileSync(path.resolve(configPath), 'utf8'))
+    ? parseJsonFile(configPath)
     : {};
   const config = normalizeConfig(rawConfig);
   const startedAtUtc = new Date().toISOString();
@@ -212,6 +221,8 @@ if (require.main === module) {
 }
 
 module.exports = {
+  stripUtf8Bom,
+  parseJsonFile,
   isLoopbackHost,
   normalizeConfig,
   main,
