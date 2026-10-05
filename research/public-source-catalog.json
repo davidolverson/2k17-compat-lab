@@ -1,0 +1,117 @@
+{
+  "schema": "2k17-compat-lab.public-source-catalog.v1",
+  "updatedUtc": "2026-10-05T04:30:00.000Z",
+  "sources": [
+    {
+      "id": "P001",
+      "title": "trust certificate dilemma",
+      "url": "https://www.reddit.com/r/cryptography/comments/14why8y/trust_certificate_dilemma/",
+      "date": "2023-07-11",
+      "sourceType": "PUBLIC_FORUM",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "claims": [
+        "nba2k17-ws.2ksports.com was the expected DNS/certificate name",
+        "a locally trusted self-signed CA path reportedly worked on PC",
+        "DNS redirection did not remove certificate hostname validation"
+      ]
+    },
+    {
+      "id": "P002",
+      "title": "How could I extract a certificate and private key out of a exe?",
+      "url": "https://reverseengineering.stackexchange.com/questions/32011/how-could-i-extract-a-certificate-and-private-key-out-of-a-exe",
+      "date": "2023-06-30",
+      "sourceType": "PUBLIC_QA",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "LOW_MEDIUM",
+      "claims": [
+        "researcher was attempting an NBA 2K17 server emulator",
+        "researcher suspected mTLS/client-certificate authentication"
+      ]
+    },
+    {
+      "id": "P003",
+      "title": "Plutonium Project Idea (NBA 2K16) — 2K17 investigation notes",
+      "url": "https://forum.plutonium.pw/topic/26595/project-idea-nba-2k16/7",
+      "date": null,
+      "sourceType": "PUBLIC_FORUM",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "claims": [
+        "2K17 uses an HTTP API for most live-service tasks",
+        "some custom/binary body serialization is used",
+        "backend expects a special HTTPS client certificate",
+        "game traffic uses WebSockets and UDP",
+        "WebSockets appeared to serve neighborhood/Park behavior",
+        "UDP appeared to serve actual matches",
+        "client caches some HTTP-delivered files on disk"
+      ]
+    },
+    {
+      "id": "P004",
+      "title": "THEKINGPATUBOY14/NBA-2k17-Private-Server",
+      "url": "https://github.com/THEKINGPATUBOY14/NBA-2k17-Private-Server",
+      "date": null,
+      "sourceType": "PUBLIC_GITHUB",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "LOW_MEDIUM",
+      "claims": [
+        "historical server attempt binds TCP port 17217",
+        "repository is incomplete and not a complete protocol implementation"
+      ]
+    },
+    {
+      "id": "P005",
+      "title": "Revival",
+      "url": "https://revivalclient.net/",
+      "date": "2026-10-05",
+      "sourceType": "FIRST_PARTY_REPLACEMENT_PROJECT",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "HIGH",
+      "claims": [
+        "Revival publicly supports NBA 2K17",
+        "Revival distinguishes API, game servers/game wire, and Park servers",
+        "Revival publicly reported a playable MyCareer beta",
+        "current homepage reports service restrictions on behalf of Take-Two"
+      ]
+    },
+    {
+      "id": "P006",
+      "title": "Preserve NBA 2K17",
+      "url": "https://preserve.st/games/2k17",
+      "date": "2026-10-05",
+      "sourceType": "FIRST_PARTY_PRESERVATION_PROJECT",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "HIGH",
+      "claims": [
+        "Preserve lists NBA 2K17 as available",
+        "page labels the package version 1.0.1 and archive size 69.2 GB",
+        "public Preserve client verifies downloaded files using SHA-256"
+      ]
+    },
+    {
+      "id": "P007",
+      "title": "NBA 2K17 EU PC online servers are active again",
+      "url": "https://www.reddit.com/r/NBA2k/comments/1wxn2a7/nba_2k17_eu_pc_online_servers_are_active_again/",
+      "date": "2026-10-04",
+      "sourceType": "COMMUNITY_REPORT",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "LOW",
+      "claims": [
+        "community project claims MyPARK, rep/progression, MyPLAYER/MyCAREER, VC, stores and rotating events are working"
+      ]
+    },
+    {
+      "id": "P008",
+      "title": "NBA 2K17 port-forward reference",
+      "url": "https://portforward.com/nba-2k17/",
+      "date": null,
+      "sourceType": "PUBLIC_REFERENCE",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "LOW",
+      "claims": [
+        "published PC port-forward ranges include TCP and UDP gameplay/Steam ranges"
+      ]
+    }
+  ]
+}
