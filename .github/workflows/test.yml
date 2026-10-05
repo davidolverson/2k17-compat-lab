@@ -23,5 +23,9 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run test suite
+      - name: Run aggregate test suite
+        run: npm test
+
+      - name: Run Mission 4 server test suite
+        working-directory: server
         run: npm test
