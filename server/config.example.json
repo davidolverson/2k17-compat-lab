@@ -12,5 +12,12 @@
     "passphrasePath": "C:/path/outside-repo/server-pfx-password.txt",
     "minVersion": "TLSv1.2",
     "maxVersion": "TLSv1.3"
+  },
+  "evidenceContext": {
+    "kind": "UNVERIFIED_LOCAL",
+    "runId": "replace-with-run-id",
+    "instrument": "capture-first-server",
+    "authorizationStatus": "UNVERIFIED",
+    "clientFingerprintSha256": null
   }
 }
