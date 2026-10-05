@@ -51,7 +51,7 @@ measured here.
 |---|---|---|
 | Install path | `C:\Program Files (x86)\Steam` | FACT |
 | Library folders | **one** -- `C:\Program Files (x86)\Steam` | FACT |
-| Logged-in account | `olversond` / persona `actuvas` / SteamID64 `765611997********` (masked) | FACT |
+| Logged-in account | one account, name / persona / SteamID64 `[REDACTED]` | FACT |
 | `userdata` dir | `1795772977` | FACT |
 
 ### Installed apps (complete list, from `appmanifest_*.acf`)

@@ -19,7 +19,7 @@ These contracts describe **our replacement platform's internal data**, not the o
   "player_id": "plr_...",
   "platform": "steam",
   "platform_subject": "private-server-side-stable-subject",
-  "display_name": "Mgtda",
+  "display_name": "ExampleHandle",
   "created_at": "2026-10-05T00:00:00Z",
   "last_seen_at": "2026-10-05T00:00:00Z",
   "status": "active"
