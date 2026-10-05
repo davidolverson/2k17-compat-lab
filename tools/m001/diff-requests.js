@@ -23,7 +23,15 @@ function Main() {
     if (!Rows.length) throw new Error(`no captured request for route ${Options.route}`);
 
     const Sessions = new Map();
-    const Digest = (Capture) => Crypto.createHash('sha256').update(Fs.readFileSync(Path.join(Directory, `${Capture.Base}.bin`))).digest('hex');
+    // The digest of a raw body is derived from identity-bearing bytes, so it never
+    // leaves this process. What is published is a neutral label (B1, B2, ...) in
+    // order of first appearance: equal label <=> byte-identical body.
+    const Variants = new Map();
+    const Variant = (Capture) => {
+        const Digest = Crypto.createHash('sha256').update(Fs.readFileSync(Path.join(Directory, `${Capture.Base}.bin`))).digest('hex');
+        if (!Variants.has(Digest)) Variants.set(Digest, `B${Variants.size + 1}`);
+        return Variants.get(Digest);
+    };
     const Raw = (Field) => JSON.stringify(Field.RawHex ?? Field.value?.HeadHex ?? Field.value ?? null) + `/${Field.length ?? Field.value?.length ?? ''}`;
     const Slots = new Map(); // "crc#occurrence" -> per-request raw + sanitized
     const Requests = Rows.map((Capture, Index) => {
@@ -48,7 +56,7 @@ function Main() {
             server_run: `pid-${Capture.Pid}`,
             body_bytes: Capture.Request.BodyBytes,
             field_count: Lib.FieldsOf(Capture.Request).length,
-            body_digest: Digest(Capture).slice(0, 12),
+            body_variant: Variant(Capture),
             response_shape: Lib.Shape(Capture.Response),
             response_result: (() => {
                 const Result = Lib.FieldsOf(Capture.Response).find((Field) => (Number(Field.Crc) >>> 0) === Lib.ResultCrc);
@@ -77,32 +85,32 @@ function Main() {
         };
     });
 
-    const Digests = new Set(Requests.map((Request) => Request.body_digest));
+    const Bodies = new Set(Requests.map((Request) => Request.body_variant));
     const Report = {
         schema_version: 0,
         kind: 'request-comparison',
         route_key: String(Options.route).toLowerCase(),
         requests: Requests.length,
         sessions: Sessions.size,
-        byte_identical: Digests.size === 1,
-        distinct_bodies: Digests.size,
+        byte_identical: Bodies.size === 1,
+        distinct_bodies: Bodies.size,
         body_bytes: [...new Set(Requests.map((Request) => Request.body_bytes))],
         field_counts: [...new Set(Requests.map((Request) => Request.field_count))],
         constant_fields: Fields.filter((Field) => Field.behaviour === 'constant').length,
         varying_fields: Fields.filter((Field) => Field.behaviour !== 'constant').map((Field) => `${Field.crc}#${Field.occurrence}`),
-        note: 'Field names appear only where CRC32(name) equals the id. "varies" for a redacted field means its private value changed; the value itself is never published. Binary fields are compared by length and leading bytes only, so a binary reported constant may still differ deeper in; body_digest is the authority on whether two requests are byte-identical.',
+        note: 'Field names appear only where CRC32(name) equals the id. "varies" for a redacted field means its private value changed; the value itself is never published. Binary fields are compared by length and leading bytes only, so a binary reported constant may still differ deeper in; body_variant is the authority on whether two requests are byte-identical: it is a neutral label assigned in order of first appearance, not a hash of the body.',
         timeline: Requests,
         fields: Fields,
     };
     const Text = `${JSON.stringify(Report, null, 2)}\n`;
-    Lib.AssertNoSecrets(Text.replace(/"body_digest": "[0-9a-f]+",?/g, ''), Secrets, 'request comparison');
+    Lib.AssertNoSecrets(Text, Secrets, 'request comparison');
     if (Options.out) {
         Fs.mkdirSync(Path.dirname(Path.resolve(Options.out)), { recursive: true });
         Fs.writeFileSync(Path.resolve(Options.out), Text, 'utf8');
     }
     const { fields, timeline, ...Summary } = Report;
     console.log(JSON.stringify(Summary, null, 2));
-    for (const Request of timeline) console.log(`${String(Request.n).padStart(3)} ${Request.captured_at.slice(11, 23)} +${String(Request.seconds_since_previous ?? '-').padStart(6)}s ${Request.session_ref} ${Request.server_run} ${Request.body_bytes}B ${Request.field_count}f ${Request.body_digest} -> ${Request.response_result?.name || Request.response_result?.crc} [${Request.response_shape.length} fields]`);
+    for (const Request of timeline) console.log(`${String(Request.n).padStart(3)} ${Request.captured_at.slice(11, 23)} +${String(Request.seconds_since_previous ?? '-').padStart(6)}s ${Request.session_ref} ${Request.server_run} ${Request.body_bytes}B ${Request.field_count}f ${Request.body_variant} -> ${Request.response_result?.name || Request.response_result?.crc} [${Request.response_shape.length} fields]`);
     for (const Field of fields) console.log(`${Field.crc}#${String(Field.occurrence).padEnd(2)} ${Field.type_name.padEnd(9)} ${Field.behaviour.padEnd(18)} ${Field.redacted ? `<${Field.redacted}${Field.bytes ? ` ${Field.bytes}B` : ''}> distinct=${Field.distinct_values}` : Field.value !== undefined ? Field.value : JSON.stringify([...new Set(Field.values)])}`);
 }
 

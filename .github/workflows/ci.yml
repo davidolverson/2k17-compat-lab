@@ -1,0 +1,72 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+# Least privilege: read the code, nothing else. No secrets are used anywhere in
+# this workflow, and it must stay that way: pull-request CI never sees signing
+# keys, deploy credentials or production data.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: tests and repository checks (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      # Third-party actions are pinned to full commit SHAs. The trailing comment
+      # is the tag that SHA was read from; update both together.
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      # There are no dependencies to install: every tool uses the Node standard
+      # library only. If a dependency is ever added, commit its lockfile and
+      # install with `npm ci`.
+      - name: Unit, gate and sanitizer tests
+        run: npm test
+
+      - name: Project state is the single source of truth
+        run: npm run check:state
+
+      - name: Evidence and fixtures match their schemas
+        run: npm run check:evidence
+
+      - name: No forbidden artifacts or private values
+        run: npm run check:forbidden
+
+  workflow-hygiene:
+    name: workflows pin actions and stay least-privilege
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - name: Check workflow files
+        run: node tools/repo/check-workflows.js

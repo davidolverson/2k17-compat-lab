@@ -1,4 +1,10 @@
-# Live Status
+# Live Status (historical: 2026-10-03)
+
+> **This page is a dated record, not the current status.** It describes the
+> Phase 0 / proof-first work of 2026-10-03 and is kept unchanged as evidence of
+> what was known then. The current status of the project lives in one place:
+> [`project-state.json`](../project-state.json). Where this page and that file
+> disagree, the file is right. See `docs/truth-reconciliation-2026-10-05.md`.
 
 *Updated 2026-10-03 03:20 EDT*
 
@@ -98,7 +104,7 @@ CONFIRMED:
     no appmanifest, no common\ directory, no reference in any localconfig or
     sharedconfig, nothing in appinfo.vdf, no partial download, no Uninstall
     registry entry, no non-Steam install directory.
-  - Steam account on this box is `olversond` (SteamID64 masked in tracked docs).
+  - One Steam account on this box (name and SteamID64 redacted in tracked docs).
     Installed apps are exactly: Steamworks redist, GTA V Legacy, GTA V Enhanced.
   - NBA 2K17 is DELISTED from the Steam store. Its appdetails entry still
     returns metadata (success:true) and carries 2K's own notice that online

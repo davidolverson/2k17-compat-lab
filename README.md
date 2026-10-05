@@ -5,11 +5,22 @@ A feasibility experiment, not a server. One question:
 > Can the legitimate NBA 2K17 PC client be made to talk to independently written
 > replacement infrastructure, after 2K shut its services down on 2018-12-31?
 
-**Read `docs/live-status.md` first.** It is the single source of truth for where
-this stands.
+**Status lives in one place: [`project-state.json`](project-state.json).** It is
+the single machine-readable source of truth for the active milestone, each
+acceptance condition, the current frontier and the open blockers. This README
+and the documents under `docs/` do not restate status; `npm run check:state`
+fails if they start to. `docs/live-status.md` is a dated record of 2026-10-03.
 
-Current state: **BLOCKED-PREREQUISITE.** NBA 2K17 is not installed on this
-machine, so the gate cannot be attempted. The lab itself is built and verified.
+Contract documents: [`docs/UP_NEXT_MASTER_SPEC.md`](docs/UP_NEXT_MASTER_SPEC.md)
+(product, security and evidence rules) and
+[`docs/milestone-001-online.md`](docs/milestone-001-online.md) (the active
+milestone). Before contributing read [`CONTRIBUTING.md`](CONTRIBUTING.md) and
+[`SECURITY.md`](SECURITY.md).
+
+```
+npm test         # unit, gate and sanitizer tests
+npm run check    # project state, evidence schema, forbidden artifacts
+```
 
 ---
 
