@@ -20,7 +20,7 @@
   "varying_fields": [
     "0x9AD3E8F7#0"
   ],
-  "note": "Field names appear only where CRC32(name) equals the id. \"varies\" for a redacted field means its private value changed; the value itself is never published. Binary fields are compared by length and leading bytes only, so a binary reported constant may still differ deeper in; body_digest is the authority on whether two requests are byte-identical.",
+  "note": "Field names appear only where CRC32(name) equals the id. \"varies\" for a redacted field means its private value changed; the value itself is never published. Binary fields are compared by length and leading bytes only, so a binary reported constant may still differ deeper in; body_variant is the authority on whether two requests are byte-identical: it is a neutral label assigned in order of first appearance, not a hash of the body.",
   "timeline": [
     {
       "n": 1,
@@ -30,7 +30,7 @@
       "server_run": "pid-42120",
       "body_bytes": 2904,
       "field_count": 33,
-      "body_digest": "c4b607c83bc0",
+      "body_variant": "B1",
       "response_shape": [
         "0xE3920695:StringCrc"
       ],
@@ -47,7 +47,7 @@
       "server_run": "pid-42120",
       "body_bytes": 2864,
       "field_count": 33,
-      "body_digest": "9c6ab68b9f36",
+      "body_variant": "B2",
       "response_shape": [
         "0xE3920695:StringCrc"
       ],
@@ -64,7 +64,7 @@
       "server_run": "pid-40048",
       "body_bytes": 2856,
       "field_count": 33,
-      "body_digest": "1372ff00bf57",
+      "body_variant": "B3",
       "response_shape": [
         "0x0BB02C05:F32",
         "0xE3920695:StringCrc"
@@ -82,7 +82,7 @@
       "server_run": "pid-40048",
       "body_bytes": 2856,
       "field_count": 33,
-      "body_digest": "9a09550e7e56",
+      "body_variant": "B4",
       "response_shape": [
         "0x0BB02C05:F32",
         "0xE3920695:StringCrc"
@@ -100,7 +100,7 @@
       "server_run": "pid-40048",
       "body_bytes": 2856,
       "field_count": 33,
-      "body_digest": "9a09550e7e56",
+      "body_variant": "B4",
       "response_shape": [
         "0x0BB02C05:F32",
         "0xE3920695:StringCrc"
@@ -118,7 +118,7 @@
       "server_run": "pid-40048",
       "body_bytes": 2856,
       "field_count": 33,
-      "body_digest": "9a09550e7e56",
+      "body_variant": "B4",
       "response_shape": [
         "0x0BB02C05:F32",
         "0xE3920695:StringCrc"
@@ -136,7 +136,7 @@
       "server_run": "pid-40048",
       "body_bytes": 2856,
       "field_count": 33,
-      "body_digest": "9a09550e7e56",
+      "body_variant": "B4",
       "response_shape": [
         "0x0BB02C05:F32",
         "0xE3920695:StringCrc"
@@ -154,7 +154,7 @@
       "server_run": "pid-40048",
       "body_bytes": 2856,
       "field_count": 33,
-      "body_digest": "f5cfdcb3fae6",
+      "body_variant": "B5",
       "response_shape": [
         "0x0BB02C05:F32",
         "0xE3920695:StringCrc"
@@ -172,7 +172,7 @@
       "server_run": "pid-40048",
       "body_bytes": 2856,
       "field_count": 33,
-      "body_digest": "f5cfdcb3fae6",
+      "body_variant": "B5",
       "response_shape": [
         "0x0BB02C05:F32",
         "0xE3920695:StringCrc"
@@ -190,7 +190,7 @@
       "server_run": "pid-41484",
       "body_bytes": 2728,
       "field_count": 33,
-      "body_digest": "a268335b026b",
+      "body_variant": "B6",
       "response_shape": [
         "0xD4C0767A:U64",
         "0x4A41DF5F:U64",
@@ -235,7 +235,7 @@
       "server_run": "pid-41484",
       "body_bytes": 2712,
       "field_count": 33,
-      "body_digest": "f384a27cdd40",
+      "body_variant": "B7",
       "response_shape": [
         "0xD4C0767A:U64",
         "0x4A41DF5F:U64",
