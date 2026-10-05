@@ -109,4 +109,38 @@ module.exports = function registerParkExperimentTests({ test, assert }) {
       /must actually change/,
     );
   });
+  test('Park experiment spec rejects structured before/after values that can hide multiple changes', () => {
+    assert.throws(
+      () =>
+        validateSpec({
+          hypothesis: 'H3',
+          variable: {
+            name: 'lobby-profile',
+            before: { joinable: false, limit: 0 },
+            after: { joinable: true, limit: 10 },
+          },
+          serverCommit: 'abcdef1',
+          outcome: 'NO_CHANGE',
+        }),
+      /must be scalar/,
+    );
+  });
+
+  test('Park experiment spec requires an exact commit SHA', () => {
+    assert.throws(
+      () =>
+        validateSpec({
+          hypothesis: 'H3',
+          variable: {
+            name: 'lobby-profile',
+            before: 'baseline',
+            after: 'candidate',
+          },
+          serverCommit: 'latest',
+          outcome: 'NO_CHANGE',
+        }),
+      /commit SHA/,
+    );
+  });
+
 };
