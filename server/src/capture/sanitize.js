@@ -45,15 +45,26 @@ function redactHeaders(headers = {}) {
   return out;
 }
 
+function sanitizeSource(source = {}) {
+  return {
+    kind: source.kind || 'UNVERIFIED_LOCAL',
+    runId: source.runId ? redactString(source.runId) : null,
+    instrument: source.instrument ? redactString(source.instrument) : null,
+    authorizationStatus: source.authorizationStatus || 'UNVERIFIED',
+    clientFingerprintSha256: source.clientFingerprintSha256 || null,
+  };
+}
+
 function sanitizeCaptureRecord(record) {
   if (!record || typeof record !== 'object') {
     throw new TypeError('capture record must be an object');
   }
 
   return {
-    schema: '2k17-compat-lab.sanitized-request.v1',
+    schema: '2k17-compat-lab.sanitized-request.v2',
     captureId: record.captureId,
     tsUtc: record.tsUtc,
+    source: sanitizeSource(record.evidenceContext),
     method: record.method,
     path: redactString(record.path),
     query: record.query ? '[REDACTED_QUERY]' : null,
@@ -89,5 +100,6 @@ module.exports = {
   SECRET_HEADERS,
   redactString,
   redactHeaders,
+  sanitizeSource,
   sanitizeCaptureRecord,
 };
