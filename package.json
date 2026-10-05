@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node tests/run.js",
     "start:capture": "node server/src/index.js server/config.local.json",
-    "import:evidence": "node scripts/import-sanitized-capture.js"
+    "import:evidence": "node scripts/import-sanitized-capture.js",
+    "hash:artifact": "node scripts/hash-cache-artifact.js"
   },
   "engines": {
     "node": ">=16"
