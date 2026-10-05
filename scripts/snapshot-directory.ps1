@@ -33,14 +33,19 @@ Get-ChildItem -LiteralPath $source -File -Recurse | ForEach-Object {
     New-Item -ItemType Directory -Force -Path $parent | Out-Null
   }
 
+  $sourceHashBefore = (Get-FileHash -Algorithm SHA256 -LiteralPath $full).Hash.ToLowerInvariant()
   Copy-Item -LiteralPath $full -Destination $target -Force
-
-  $sourceHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $full).Hash.ToLowerInvariant()
+  $sourceHashAfter = (Get-FileHash -Algorithm SHA256 -LiteralPath $full).Hash.ToLowerInvariant()
   $copyHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $target).Hash.ToLowerInvariant()
 
-  if ($sourceHash -ne $copyHash) {
+  if ($sourceHashBefore -ne $sourceHashAfter) {
+    throw "Source file changed during snapshot: $relative"
+  }
+  if ($sourceHashAfter -ne $copyHash) {
     throw "Snapshot hash mismatch for $relative"
   }
+
+  $sourceHash = $sourceHashAfter
 
   $records += [pscustomobject]@{
     relativePath = $relative
