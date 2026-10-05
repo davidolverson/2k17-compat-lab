@@ -1,9 +1,9 @@
 # NBA 2K17 Protocol Matrix
 
-**Status:** Mission 2 — evidence normalization  
+**Status:** Mission 6 — evidence normalization + public-source expansion  
 **Repository:** `davidolverson/2k17-compat-lab`  
 **Working branch:** `work/deepseek-protocol-reconstruction`  
-**Date:** 2026-10-04
+**Date:** 2026-10-05
 
 This file is the protocol source of truth for the clean-room replacement-service effort.
 
@@ -45,9 +45,10 @@ Nothing in the `2K19 reference` column is automatically an NBA 2K17 fact.
 | Primary web-service hostname | `nba2k17-ws.2ksports.com` is named explicitly by a 2023 developer recreating the NBA 2K17 API. Historical host lists also contain it. | Reddit 2023 developer post; historical host list | `PUBLIC_2K17_SOURCE` | MEDIUM | Granite uses a title-specific `nba2k19-ws.2ksports.com` host. | Keep configurable. Do not mark client-observed until authorized capture exists. |
 | Primary service port | Historical public NBA 2K17 private-server source binds TCP port `17217`. This corroborates that 17217 was significant in community 2K17 work, but does not by itself prove every retail client directly targets that port. | `THEKINGPATUBOY14/NBA-2k17-Private-Server`, `Server.h` | `PUBLIC_2K17_SOURCE` | LOW–MEDIUM | Granite's 2K19 Session root is on port `19217`; not transferable to 2K17. | Default future 2K17 test profile may expose 17217, but port remains configurable. |
 | TLS used for web service | The 2023 developer describes certificate-name validation for `nba2k17-ws.2ksports.com` and reports making a self-signed certificate work on PC after trusting their CA. | Reddit 2023 developer post | `PUBLIC_2K17_SOURCE` | MEDIUM | Granite uses HTTPS/TLS. | Existing probe already supports TLS. |
+| HTTP API for live-service tasks | A Plutonium administrator reported that their prior 2K17 investigation found an HTTP API handling most live-service tasks. | Plutonium 2K17 investigation notes | `PUBLIC_2K17_SOURCE` | MEDIUM | Granite 2K19 exposes a broad HTTPS service layer. | Capture-first HTTPS transport aligns with public evidence; exact routes/methods remain UNKNOWN. |
 | PC trust-store compatible certificate path | One public 2K17 developer report says a locally trusted CA/self-signed setup worked on PC. This is evidence for that build/environment, not proof for all builds. | Reddit 2023 developer post | `PUBLIC_2K17_SOURCE` | MEDIUM | Granite ships local TLS certificate infrastructure. | Existing lab CA/leaf flow is the preferred non-bypass test path. |
 | Certificate pinning required | No verified 2K17 evidence proves strict pinning. EOF/FIN after certificate delivery is not proof. | Project evidence rule; public discussion leaves pinning/mTLS unresolved | `UNKNOWN` | UNKNOWN | 2K19 behavior cannot settle 2K17. | Never assume; classify exact TLS failure only. |
-| mTLS / client certificate required | A 2023 Stack Exchange questioner suspected mTLS, but responders explicitly questioned whether mTLS was actually in use. No conclusive evidence. | Reverse Engineering Stack Exchange Q32011 | `HYPOTHESIS` | LOW | Granite replacement behavior does not establish original production mTLS. | Unknown; do not implement client-cert requirement without evidence. |
+| HTTPS client certificate / mTLS | A Plutonium administrator reported that their 2K17 investigation found the backend expected a special HTTPS client certificate. A separate 2023 NBA 2K17 server-emulator researcher independently suspected mTLS, though that assumption was challenged in comments. | Plutonium 2K17 investigation notes; Reverse Engineering Stack Exchange Q32011 | `PUBLIC_2K17_SOURCE` | MEDIUM | Granite replacement behavior does not establish original production mTLS. | Capture layer supports optional client-certificate observation. Do not require or fabricate a client cert until authorized-client evidence confirms behavior. |
 | Session service root path | No admissible public 2K17 source currently establishes the exact root path. A disputed local client exposed a `/Session` string, but that cannot be promoted in the clean-room ledger. | disputed local artifact excluded from evidence | `UNKNOWN` | UNKNOWN | Granite 2K19 uses `/Session`. | Not implemented as 2K17 fact. |
 | `Session/login` route | No verified public 2K17 source currently establishes the exact route. It appeared in disputed local experiments. | disputed local experiment; excluded from evidence | `HYPOTHESIS` | LOW | Granite 2K19 implements `POST /Session/login`. | No real 2K17 handler. Route may be exposed later only as TEST_ONLY until verified. |
 | `Session/update` route | No verified 2K17 evidence currently establishes it. | none | `UNKNOWN` | UNKNOWN | Granite 2K19 implements `/Session/update`. | Not implemented. |
@@ -55,7 +56,8 @@ Nothing in the `2K19 reference` column is automatically an NBA 2K17 fact.
 | Login response HTTP status | Unknown for authentic 2K17. | none | `UNKNOWN` | UNKNOWN | Granite sends HTTP 200 for handled requests. | TEST_ONLY response profiles may use explicit statuses. |
 | Login content type | Unknown for 2K17. | none | `UNKNOWN` | UNKNOWN | Granite sends `application/octet-stream`. | Not implemented as a 2K17 fact. |
 | `VCFIELDLIST_SIZE` header | No public 2K17 evidence currently establishes this header. | none | `UNKNOWN` | UNKNOWN | Granite parses/sends `VCFIELDLIST_SIZE`. | Capture it if present; do not require it yet. |
-| Binary field-list protocol | No verified 2K17 capture currently establishes the framing. | none | `UNKNOWN` | UNKNOWN | Granite has a VcFieldList codec with 16-byte BE records + zero terminator + data section. | Mission 3 may build a generic/reference codec, explicitly tagged `CROSS_VERSION_REFERENCE`. |
+| Binary serialization | A Plutonium administrator reported that 2K17's HTTP API used some custom/binary body serialization. This supports binary serialization in general, but not Granite-style field-list framing. | Plutonium 2K17 investigation notes | `PUBLIC_2K17_SOURCE` | MEDIUM | Granite has a VcFieldList codec with 16-byte BE records + zero terminator + data section. | Generic/reference codec exists, but exact 2K17 framing remains unverified. |
+| Granite-style binary field-list framing | No verified 2K17 capture or public source currently establishes 16-byte BE records, zero terminator, data section, or Granite type IDs for 2K17. | none | `UNKNOWN` | UNKNOWN | Granite uses that framing for 2K19. | Keep codec tagged `CROSS_VERSION_REFERENCE`; do not promote until a real 2K17 capture parses repeatably. |
 | Field CRC identifiers | Unknown for 2K17. | none | `UNKNOWN` | UNKNOWN | Granite names CRC-backed fields such as RESULT, SESSION_KEY, SERVICES, PARAMETERS, MANIFEST. | Do not hardcode as 2K17 constants. |
 | Field byte order | Unknown for 2K17. | none | `UNKNOWN` | UNKNOWN | Granite field records are big-endian. | Reference codec only until verified. |
 | U32/U64 field types | Unknown for 2K17. | none | `UNKNOWN` | UNKNOWN | Granite supports U32/U64 and several related types. | Generic codec can support them without claiming 2K17 use. |
@@ -73,10 +75,10 @@ Nothing in the `2K19 reference` column is automatically an NBA 2K17 fact.
 | VC / wallet service | Public/community reports around restored 2K17 projects claim VC earning/store functionality. Exact endpoints, fields and persistence contract are unknown. | Revival/community reports documented in project research | `PUBLIC_2K17_SOURCE` for feature existence only | LOW–MEDIUM | Granite implements VirtualCurrency services. | Domain placeholder allowed; no 2K17 wire contract. |
 | Store/catalog service | Public/community reports claim restored store usage. Exact route/schema unknown. | Revival/community reports | `PUBLIC_2K17_SOURCE` for feature existence only | LOW–MEDIUM | Granite implements store/catalog endpoints. | Domain placeholder only. |
 | MyCAREER online state | Public/community reports claim restored MyCAREER behavior. Exact service contract unknown. | Revival/community reports | `PUBLIC_2K17_SOURCE` for feature existence only | LOW–MEDIUM | Granite implements multiple MyCareer services. | Domain placeholder only. |
-| Park / world bootstrap | Public/community evidence says replacement projects restored Park access. This proves feasibility of some replacement path, not its protocol shape. | Revival / Back2Back community reports | `PUBLIC_2K17_SOURCE` for feature existence only | MEDIUM | Granite splits web services from an Opal world layer. | Architecture placeholder only. |
-| Park realtime transport | Unknown for 2K17. | none | `UNKNOWN` | UNKNOWN | Granite 2K19 uses secure WebSocket + UDP world/game relay concepts. | Do not assume WebSocket or UDP for 2K17. |
-| Matchmaking/session assignment | Required conceptually for online multiplayer, but exact 2K17 contract is unknown. | inference from restored Park functionality | `INFERRED` | LOW | Granite has matchmaking/game-session services. | Unknown. |
-| CDN/content bootstrap | Unknown for 2K17. | none | `UNKNOWN` | UNKNOWN | Granite implements CDN and content-message services. | Unknown. |
+| Park / world bootstrap | Revival first-party status material separates Park servers from its API and game-server layer, and public/community evidence shows restored Park access. This demonstrates a separate Park infrastructure layer in a working replacement project, not the exact original 2K17 bootstrap contract. | Revival first-party status/release pages; community reports | `PUBLIC_2K17_SOURCE` for replacement architecture/feature existence | HIGH for Revival's own architecture claim; original wire contract UNKNOWN | Granite splits web services from an Opal world layer. | Architecture placeholder is justified; exact bootstrap messages remain UNKNOWN. |
+| Park realtime transport | A Plutonium administrator reported that 2K17 used WebSockets and UDP for game traffic, with WebSockets appearing to handle neighborhood/Park behavior and UDP the actual match; the packet structures looked different. | Plutonium 2K17 investigation notes | `PUBLIC_2K17_SOURCE` | MEDIUM | Granite 2K19 independently uses a split world/game realtime architecture. | Architecture can reserve separate WebSocket/world and UDP/match layers, but exact endpoints, ports and packet formats remain UNKNOWN. |
+| Matchmaking/session assignment | Exact original 2K17 wire contract is unknown. Revival's first-party status page separately identifies game servers handling login, matchmaking and the game wire, demonstrating that a working replacement project treats this as a distinct service layer. | Revival first-party status page; restored Park functionality | `PUBLIC_2K17_SOURCE` for replacement architecture; original wire contract `UNKNOWN` | MEDIUM | Granite has matchmaking/game-session services. | Reserve a separate matchmaking/session layer; do not copy route/schema assumptions. |
+| HTTP-delivered cache/content | A Plutonium administrator reported that 2K17 caches some files obtained from its HTTP API on disk, possibly updated lists or small patch/content files. Exact filenames, paths and schemas were not published. | Plutonium 2K17 investigation notes | `PUBLIC_2K17_SOURCE` | LOW–MEDIUM | Granite implements CDN/content-message services. | Add cache/file observation to future authorized-client checklist; wire contract remains UNKNOWN. |
 | Client helper process owns traffic | No authorized 2K17 evidence. Existing GTA V instrumentation proved only that commercial games may delegate network traffic to helpers. | own GTA V instrumentation history | `INFERRED` as instrumentation risk, not 2K17 behavior | LOW | n/a | Attribution must remain install-root/path based, not name-only. |
 | IPv6 use | No authorized 2K17 evidence. Existing GTA V test demonstrated IPv6 can invalidate IPv4-only instrumentation. | own GTA V instrumentation history | `INFERRED` as instrumentation risk, not 2K17 behavior | LOW | n/a | Keep dual-family instrumentation. |
 | Official shutdown | NBA 2K17 online services were announced shut down effective 2018-12-31. | Steam/app metadata recorded in project research | `PUBLIC_2K17_SOURCE` | HIGH | n/a | Background fact; not a protocol detail. |
@@ -231,6 +233,34 @@ Useful for:
 - separation of web services and realtime world services.
 
 Not usable as direct proof of NBA 2K17 constants, endpoints, field IDs, or service-table entries.
+
+---
+
+## Mission 6 public-source delta
+
+Mission 6 added public evidence that materially changes the architecture picture without changing any exact route or field constant.
+
+New/strengthened claims:
+
+- 2K17 used an HTTP API for most live-service tasks — `PUBLIC_2K17_SOURCE`, MEDIUM.
+- Some custom/binary body serialization existed — `PUBLIC_2K17_SOURCE`, MEDIUM.
+- A special HTTPS client certificate was reportedly expected by the backend — `PUBLIC_2K17_SOURCE`, MEDIUM.
+- Realtime game traffic reportedly split between WebSockets and UDP, with Park/neighborhood on WebSockets and actual matches on UDP — `PUBLIC_2K17_SOURCE`, MEDIUM.
+- The client reportedly cached some HTTP-delivered files on disk — `PUBLIC_2K17_SOURCE`, LOW–MEDIUM.
+- Revival first-party status material independently demonstrates that a working 2K17 replacement project separates API, login/matchmaking/game-wire, and Park-server layers.
+
+Still not established:
+
+- exact `Session/login` route or method,
+- exact 2K17 field-list framing,
+- field CRCs/type IDs/endian,
+- `VCFIELDLIST_SIZE`,
+- client-certificate format/key location,
+- WebSocket URL/protocol frames,
+- UDP packet format/ports,
+- service discovery or manifest schema.
+
+See `research/public-2k17-evidence.md` and `research/public-source-catalog.json`.
 
 ---
 
