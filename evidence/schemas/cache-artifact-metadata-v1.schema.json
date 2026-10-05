@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://checkup.gg/schemas/2k17-compat-lab/cache-artifact-metadata-v1.schema.json",
+  "title": "2k17-compat-lab cache artifact metadata v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "artifactId",
+    "basename",
+    "byteSize",
+    "sha256",
+    "sourceDescription",
+    "authorizationStatus",
+    "modifiedUtc",
+    "contentCommitted"
+  ],
+  "properties": {
+    "schema": {
+      "const": "2k17-compat-lab.cache-artifact-metadata.v1"
+    },
+    "artifactId": {
+      "type": "string",
+      "pattern": "^ART-[0-9A-F]{20}$"
+    },
+    "basename": {
+      "type": "string",
+      "minLength": 1
+    },
+    "byteSize": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "sourceDescription": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authorizationStatus": {
+      "enum": [
+        "AUTHORIZED",
+        "UNVERIFIED"
+      ]
+    },
+    "modifiedUtc": {
+      "type": ["string", "null"]
+    },
+    "contentCommitted": {
+      "const": false
+    }
+  }
+}
