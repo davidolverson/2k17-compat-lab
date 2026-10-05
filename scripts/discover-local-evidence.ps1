@@ -142,4 +142,3 @@ foreach ($candidate in $syncCandidates) {
   Write-Host ("  SHA256 " + $candidate.sha256)
 }
 
-exit 0
