@@ -1,0 +1,130 @@
+{
+  "schema_version": 0,
+  "kind": "sanitized-request",
+  "title": "nba2k17-pc",
+  "method": "POST",
+  "path": "/nba/2k17/Session/update",
+  "route": "session/update",
+  "captured_at": "2026-10-05T09:42:44.211Z",
+  "headers": {
+    "user-agent": "VISUAL_CONCEPTS_WIN64/17.0",
+    "content-type": "application/octet-stream",
+    "vcfieldlist_size": "536",
+    "content-length": "536"
+  },
+  "body_bytes": 536,
+  "declared_fieldlist_bytes": 536,
+  "parse_status": "ok",
+  "fields": [
+    {
+      "index": 0,
+      "crc": "0x01CAAEE8",
+      "name": "USERID",
+      "type": "0x3D9E5089",
+      "type_name": "U64",
+      "value": null,
+      "redacted": "identity"
+    },
+    {
+      "index": 1,
+      "crc": "0x109264E0",
+      "name": null,
+      "type": "0x3D9E5089",
+      "type_name": "U64",
+      "value": "32796"
+    },
+    {
+      "index": 2,
+      "crc": "0x12E8EDF9",
+      "name": null,
+      "type": "0x1423ADD2",
+      "type_name": "StringCrc",
+      "value": "0xE33E3B9C",
+      "value_name": null
+    },
+    {
+      "index": 3,
+      "crc": "0x3E6D9A3B",
+      "name": null,
+      "type": "0x6E46752F",
+      "type_name": "String8",
+      "value": null,
+      "redacted": "identity"
+    },
+    {
+      "index": 4,
+      "crc": "0x517C7ED8",
+      "name": null,
+      "type": "0x1423ADD2",
+      "type_name": "StringCrc",
+      "value": "0x8321FC23",
+      "value_name": null
+    },
+    {
+      "index": 5,
+      "crc": "0x63B8213B",
+      "name": null,
+      "type": "0x55C05A86",
+      "type_name": "VCDate",
+      "value": "2026-10-05T09:40:44.356Z",
+      "value_hex": "0x0000C16949C304C4"
+    },
+    {
+      "index": 6,
+      "crc": "0x80592DD9",
+      "name": "VERSION",
+      "type": "0x1423ADD2",
+      "type_name": "StringCrc",
+      "value": "0x5B963FB9",
+      "value_name": null
+    },
+    {
+      "index": 7,
+      "crc": "0x93F13B2D",
+      "name": null,
+      "type": "0x3D9E5089",
+      "type_name": "U64",
+      "value": "0"
+    },
+    {
+      "index": 8,
+      "crc": "0x9F26E847",
+      "name": null,
+      "type": "0x36182E83",
+      "type_name": "Binary",
+      "value": null,
+      "redacted": "opaque",
+      "bytes": 234
+    },
+    {
+      "index": 9,
+      "crc": "0xC7CE9F1C",
+      "name": null,
+      "type": "0x55C05A86",
+      "type_name": "VCDate",
+      "value": "2026-10-05T09:40:44.356Z",
+      "value_hex": "0x0000C16949C304C4"
+    },
+    {
+      "index": 10,
+      "crc": "0xCFF900A4",
+      "name": null,
+      "type": "0x1423ADD2",
+      "type_name": "StringCrc",
+      "value": "0xEB697DB8",
+      "value_name": null
+    },
+    {
+      "index": 11,
+      "crc": "0xF8B2BE71",
+      "name": null,
+      "type": "0x36182E83",
+      "type_name": "Binary",
+      "value": null,
+      "redacted": "opaque",
+      "bytes": 78
+    }
+  ],
+  "data_bytes": 328,
+  "trailing_bytes": 0
+}
