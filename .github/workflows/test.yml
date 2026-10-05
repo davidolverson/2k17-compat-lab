@@ -45,3 +45,36 @@ jobs:
       - name: Exercise one-command Windows smoke path
         shell: powershell
         run: .\scripts\run-parallel.ps1 -Smoke
+
+      - name: Prove local Steam evidence discovery with synthetic fixture
+        shell: powershell
+        run: |
+          $fixture = Join-Path $env:RUNNER_TEMP "steam-fixture"
+          New-Item -ItemType Directory -Force -Path (Join-Path $fixture "steamapps\common\NBA 2K17") | Out-Null
+          New-Item -ItemType Directory -Force -Path (Join-Path $fixture "userdata\123456\385760\local") | Out-Null
+
+          @'
+          "AppState"
+          {
+              "appid" "385760"
+              "installdir" "NBA 2K17"
+          }
+          '@ | Set-Content (Join-Path $fixture "steamapps\appmanifest_385760.acf") -Encoding ASCII
+
+          [IO.File]::WriteAllBytes(
+            (Join-Path $fixture "steamapps\common\NBA 2K17\NBA2K17.exe"),
+            [byte[]](1,2,3,4)
+          )
+          [IO.File]::WriteAllBytes(
+            (Join-Path $fixture "userdata\123456\385760\local\SYNC.BIN"),
+            [byte[]](10,20,30,40,50)
+          )
+
+          .\scripts\discover-local-evidence.ps1 -SteamRoot $fixture -OutputPath "experiment-state\ci-discovery.json"
+
+          $result = Get-Content "experiment-state\ci-discovery.json" -Raw | ConvertFrom-Json
+          if (-not $result.clientInstalled) { throw "synthetic client was not discovered" }
+          if (-not $result.syncBinFound) { throw "synthetic SYNC.BIN was not discovered" }
+          if (@($result.syncBinCandidates).Count -ne 1) { throw "expected exactly one SYNC.BIN candidate" }
+          if ($result.networkContacted) { throw "discovery must remain offline" }
+          if (@($result.claimsPromoted).Count -ne 0) { throw "discovery promoted a protocol claim" }
