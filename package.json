@@ -13,7 +13,8 @@
     "compare:artifact": "node scripts/compare-cache-analysis.js",
     "analyze:request": "node scripts/analyze-request-capture.js",
     "reconstruct:parallel": "node scripts/run-parallel-reconstruction.js",
-    "handoff:claude": "node scripts/build-claude-handoff.js"
+    "handoff:claude": "node scripts/build-claude-handoff.js",
+    "smoke:parallel": "node scripts/smoke-parallel-reconstruction.js"
   },
   "engines": {
     "node": ">=16"
