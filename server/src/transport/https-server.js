@@ -56,6 +56,7 @@ function createHttpsCaptureServer(config = {}) {
     fallbackProfile: config.fallbackProfile,
     maxBodyBytes: config.maxBodyBytes,
     autoExportSanitized: config.autoExportSanitized,
+    evidenceContext: config.evidenceContext || null,
     onCapture: config.onCapture,
     onError: config.onError,
   });
