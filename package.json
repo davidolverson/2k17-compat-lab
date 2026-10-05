@@ -10,7 +10,9 @@
     "hash:artifact": "node scripts/hash-cache-artifact.js",
     "analyze:artifact": "node scripts/analyze-cache-artifact.js",
     "capture:ws": "node scripts/start-websocket-capture.js server/realtime.websocket.local.json",
-    "capture:udp": "node scripts/start-udp-capture.js server/realtime.udp.local.json"
+    "capture:udp": "node scripts/start-udp-capture.js server/realtime.udp.local.json",
+    "compare:artifact": "node scripts/compare-cache-analysis.js",
+    "analyze:request": "node scripts/analyze-request-capture.js"
   },
   "engines": {
     "node": ">=16"
