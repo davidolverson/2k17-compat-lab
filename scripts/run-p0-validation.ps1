@@ -6,7 +6,7 @@ param(
   [string]$ProbeLogBefore = "",
   [string]$ProbeLogAfter = "",
   [string]$ParkSpec = "",
-  [string]$OutputDir = "server\captures\p0-validation-local",
+  [string]$OutputDir = "",
   [switch]$SkipTests
 )
 
@@ -41,6 +41,11 @@ if (-not $SkipTests) {
   if ($LASTEXITCODE -ne 0) {
     Fail "Tests failed. P0 validation stopped."
   }
+}
+
+if (-not $OutputDir) {
+  $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+  $OutputDir = "server\captures\p0-validation-local\$stamp"
 }
 
 $absoluteOutput = Join-Path $repoRoot $OutputDir
