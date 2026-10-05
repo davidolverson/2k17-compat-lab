@@ -73,6 +73,13 @@ class CaptureStore {
         input.vcFieldListSize === undefined ? null : input.vcFieldListSize,
       tls: input.tls || null,
       responseProfile: input.responseProfile || null,
+      evidenceContext: input.evidenceContext || {
+        kind: 'UNVERIFIED_LOCAL',
+        runId: null,
+        instrument: 'capture-first-server',
+        authorizationStatus: 'UNVERIFIED',
+        clientFingerprintSha256: null,
+      },
     };
 
     atomicWrite(bodyPath, input.body);
