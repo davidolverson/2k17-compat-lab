@@ -30,7 +30,6 @@ function classifyLine(line, index = 0) {
       return {
         sourceLine: index + 1,
         call,
-        text: text.slice(0, 1000),
       };
     }
   }
