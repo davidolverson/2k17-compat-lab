@@ -1,20 +1,24 @@
 {
   "schema": "2k17-compat-lab.evidence-ledger.v1",
-  "updatedUtc": "2026-10-05T04:35:00.000Z",
+  "updatedUtc": "2026-10-05T04:40:00.000Z",
   "entries": [
     {
       "id": "E001",
       "claim": "nba2k17-ws.2ksports.com is a historical NBA 2K17 web-service hostname.",
       "evidenceClass": "PUBLIC_2K17_SOURCE",
-      "confidence": "MEDIUM",
+      "confidence": "HIGH",
       "status": "ACTIVE",
       "sources": [
         {
           "kind": "PUBLIC_WEB",
           "locator": "https://www.reddit.com/r/cryptography/comments/14why8y"
+        },
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://gist.github.com/Lichtenshtein/39948d25d7f93b3d17dbe0be66a6388e"
         }
       ],
-      "notes": "Supports hostname and PC replacement-service feasibility context; does not establish exact routes or every build."
+      "notes": "The 2023 replacement-service developer report is independently corroborated by a 2018-era game HOSTS list that labels nba2k17-ws.2ksports.com under NBA 2K17. This strongly supports the hostname, but not exact routes or ports."
     },
     {
       "id": "E002",
