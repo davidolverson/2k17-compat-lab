@@ -6,8 +6,8 @@
   A curl, a browser, a Steam overlay or an antivirus TLS inspector hitting the
   probe looks identical in the probe log to the game hitting it.
 
-  This watcher polls the OS connection table and records, per connection to our
-  listener, the owning PID and process name. Correlation key = remote port
+  This watcher polls the OS connection table and records, per TCP connection to
+  our listener, the owning PID and process name. Correlation key = remote port
   (ephemeral ports are not reused within the poll window in practice).
 
   Run it in a second window alongside run.ps1, BEFORE launching the game.
@@ -35,7 +35,8 @@ $outLog = Join-Path $LogDir "attribution.$runId.jsonl"
 
 Write-Host "=== attribution watcher ==="
 Write-Host "watching 127.0.0.1:$Port  target=$ProcessName  interval=${IntervalMs}ms  log=$outLog"
-Write-Host "Also tracking every outbound connection owned by $ProcessName.exe."
+Write-Host "Also tracking every outbound TCP connection owned by $ProcessName.exe."
+Write-Host "UDP: local endpoints are recorded, but Windows' UDP endpoint table does not expose remote peers."
 Write-Host 'Ctrl+C to stop.'
 Write-Host ''
 
@@ -98,13 +99,33 @@ while ((Get-Date) -lt $deadline) {
             if ($seen.ContainsKey($key)) { continue }
             $seen[$key] = $true
             Write-Attr 'game.connection' @{
+                transport     = 'tcp'
                 gamePid       = $g.Id
                 localPort     = $c.LocalPort
                 remoteAddress = $c.RemoteAddress
                 remotePort    = $c.RemotePort
                 state         = $c.State.ToString()
             } | Out-Null
-            Write-Host "[game] $ProcessName pid=$($g.Id) -> $($c.RemoteAddress):$($c.RemotePort) ($($c.State))"
+            Write-Host "[game/tcp] $ProcessName pid=$($g.Id) -> $($c.RemoteAddress):$($c.RemotePort) ($($c.State))"
+        }
+
+        # UDP has no connection table with a reliable remote peer on Windows.
+        # Recording local endpoints is still useful: a new bound UDP socket around
+        # the Park transition is evidence of transport activity, but NOT evidence
+        # of a particular relay destination.
+        $gu = @(Get-NetUDPEndpoint -OwningProcess $g.Id -ErrorAction SilentlyContinue)
+        foreach ($u in $gu) {
+            $key = "gameudp:$($u.LocalAddress):$($u.LocalPort)"
+            if ($seen.ContainsKey($key)) { continue }
+            $seen[$key] = $true
+            Write-Attr 'game.udp.endpoint' @{
+                transport    = 'udp'
+                gamePid      = $g.Id
+                localAddress = $u.LocalAddress
+                localPort    = $u.LocalPort
+                remotePeerKnown = $false
+            } | Out-Null
+            Write-Host "[game/udp] $ProcessName pid=$($g.Id) local=$($u.LocalAddress):$($u.LocalPort) remote=UNKNOWN"
         }
     }
 
