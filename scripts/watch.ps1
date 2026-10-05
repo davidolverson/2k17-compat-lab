@@ -21,7 +21,10 @@ param(
     # The target process. Parameterised so the SAME instrument can be validated
     # against a game we actually own before the one-shot 2K17 run, instead of
     # trusting that it works because it worked on a renamed node.exe.
-    [string]$ProcessName = 'NBA2K17'
+    [string]$ProcessName = 'NBA2K17',
+    # Optional explicit output path for standalone compatibility experiments.
+    # When omitted, preserve the original runId-correlated probe filename.
+    [string]$OutputPath = ''
 )
 
 $ErrorActionPreference = 'Continue'
@@ -31,7 +34,11 @@ Initialize-LabDirs
 $state = Read-LabState
 $runId = 'nostate'
 if ($state -ne $null) { $runId = $state.runId }
-$outLog = Join-Path $LogDir "attribution.$runId.jsonl"
+$outLog = if ($OutputPath) {
+    if ([IO.Path]::IsPathRooted($OutputPath)) { $OutputPath } else { Join-Path $RepoRoot $OutputPath }
+} else {
+    Join-Path $LogDir "attribution.$runId.jsonl"
+}
 
 Write-Host "=== attribution watcher ==="
 Write-Host "watching 127.0.0.1:$Port  target=$ProcessName  interval=${IntervalMs}ms  log=$outLog"
