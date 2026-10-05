@@ -59,6 +59,16 @@ function validateSpec(spec) {
     throw new Error('variable.name is required');
   }
 
+  const scalarTypes = new Set(['string', 'number', 'boolean']);
+  if (
+    !scalarTypes.has(typeof spec.variable.before) ||
+    !scalarTypes.has(typeof spec.variable.after)
+  ) {
+    throw new Error(
+      'variable.before and variable.after must be scalar string/number/boolean values',
+    );
+  }
+
   if (spec.variable.before === spec.variable.after) {
     throw new Error('experiment variable must actually change');
   }
@@ -69,8 +79,9 @@ function validateSpec(spec) {
     );
   }
 
-  if (!String(spec.serverCommit || '').trim()) {
-    throw new Error('serverCommit is required');
+  const commit = String(spec.serverCommit || '').trim();
+  if (!/^[0-9a-f]{7,40}$/i.test(commit)) {
+    throw new Error('serverCommit must be an exact 7-40 character hexadecimal commit SHA');
   }
 
   return spec;
