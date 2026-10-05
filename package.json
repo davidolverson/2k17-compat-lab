@@ -1,0 +1,12 @@
+{
+  "name": "2k17-compat-lab",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Clean-room interoperability lab. Protocol code is evidence-classified and not a claim about NBA 2K17 unless explicitly documented.",
+  "scripts": {
+    "test": "node tests/run.js"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}
