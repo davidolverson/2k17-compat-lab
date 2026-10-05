@@ -9,9 +9,7 @@
   "responseRules": [],
   "tls": {
     "pfxPath": "C:/path/outside-repo/server.pfx",
-    "passphrasePath": "C:/path/outside-repo/server-pfx-password.txt",
-    "minVersion": "TLSv1.2",
-    "maxVersion": "TLSv1.3"
+    "passphrasePath": "C:/path/outside-repo/server-pfx-password.txt"
   },
   "evidenceContext": {
     "kind": "UNVERIFIED_LOCAL",
