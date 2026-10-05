@@ -190,23 +190,36 @@ test('tryParseFieldList returns structured failure instead of throwing', () => {
   assert.ok(result.error instanceof Error);
 });
 
-let passed = 0;
+require('./transport.test')({ test, assert });
 
-for (const { name, fn } of tests) {
+async function main() {
+  let passed = 0;
+
+  for (const { name, fn } of tests) {
   try {
-    fn();
+    await fn();
     passed += 1;
     process.stdout.write('PASS ' + name + '\n');
   } catch (error) {
     process.stderr.write('FAIL ' + name + '\n');
     process.stderr.write((error && error.stack ? error.stack : String(error)) + '\n');
   }
+  }
+
+  process.stdout.write(
+    '\nRESULT ' + passed + '/' + tests.length + ' tests passed\n',
+  );
+
+  if (passed !== tests.length) {
+    process.exitCode = 1;
+  }
 }
 
-process.stdout.write(
-  '\nRESULT ' + passed + '/' + tests.length + ' tests passed\n',
-);
-
-if (passed !== tests.length) {
+main().catch((error) => {
+  process.stderr.write(
+    'TEST HARNESS FAILURE\n' +
+      (error && error.stack ? error.stack : String(error)) +
+      '\n',
+  );
   process.exitCode = 1;
-}
+});
