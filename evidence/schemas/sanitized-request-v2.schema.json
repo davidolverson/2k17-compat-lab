@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://checkup.gg/schemas/2k17-compat-lab/sanitized-request-v2.schema.json",
+  "title": "2k17-compat-lab sanitized request v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "captureId",
+    "tsUtc",
+    "source",
+    "method",
+    "path",
+    "query",
+    "httpVersion",
+    "host",
+    "headers",
+    "bodyLength",
+    "bodySha256",
+    "bodyStoredLocally",
+    "bodyTruncated",
+    "contentType",
+    "vcFieldListSize",
+    "tls",
+    "responseProfile"
+  ],
+  "properties": {
+    "schema": {
+      "const": "2k17-compat-lab.sanitized-request.v2"
+    },
+    "captureId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]{6,128}$"
+    },
+    "tsUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "runId",
+        "instrument",
+        "authorizationStatus",
+        "clientFingerprintSha256"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "LAB_SELFTEST",
+            "AUTHORIZED_CLIENT_CAPTURE",
+            "SYNTHETIC_TEST",
+            "UNVERIFIED_LOCAL"
+          ]
+        },
+        "runId": {
+          "type": ["string", "null"]
+        },
+        "instrument": {
+          "type": ["string", "null"]
+        },
+        "authorizationStatus": {
+          "enum": [
+            "AUTHORIZED",
+            "UNVERIFIED",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "clientFingerprintSha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9A-Fa-f]{64}$"
+        }
+      }
+    },
+    "method": {
+      "type": ["string", "null"]
+    },
+    "path": {
+      "type": ["string", "null"]
+    },
+    "query": {
+      "enum": [null, "[REDACTED_QUERY]"]
+    },
+    "httpVersion": {
+      "type": ["string", "null"]
+    },
+    "host": {
+      "type": ["string", "null"]
+    },
+    "headers": {
+      "type": "object"
+    },
+    "bodyLength": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "bodySha256": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{64}$"
+    },
+    "bodyStoredLocally": {
+      "type": "boolean"
+    },
+    "bodyTruncated": {
+      "type": "boolean"
+    },
+    "contentType": {
+      "type": ["string", "null"]
+    },
+    "vcFieldListSize": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "tls": {
+      "type": ["object", "null"]
+    },
+    "responseProfile": {
+      "type": ["object", "null"]
+    }
+  }
+}
