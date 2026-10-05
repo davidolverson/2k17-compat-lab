@@ -1,0 +1,16 @@
+{
+  "host": "127.0.0.1",
+  "port": 17217,
+  "maxBodyBytes": 1048576,
+  "rawDir": "server/captures/raw-local",
+  "sanitizedDir": "sanitized-fixtures",
+  "autoExportSanitized": false,
+  "fallbackProfile": "CAPTURE_ONLY_404",
+  "responseRules": [],
+  "tls": {
+    "pfxPath": "C:/path/outside-repo/server.pfx",
+    "passphrasePath": "C:/path/outside-repo/server-pfx-password.txt",
+    "minVersion": "TLSv1.2",
+    "maxVersion": "TLSv1.3"
+  }
+}
