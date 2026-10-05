@@ -18,7 +18,11 @@
     "summarize:probe": "node scripts/summarize-probe-log.js",
     "roundtrip:user-content": "node scripts/test-user-content-roundtrip.js",
     "diff:probe": "node scripts/diff-probe-summaries.js",
-    "record:park-experiment": "node scripts/record-park-experiment.js"
+    "record:park-experiment": "node scripts/record-park-experiment.js",
+    "summarize:routes": "node scripts/summarize-route-log.js",
+    "summarize:granite": "node scripts/summarize-granite-log.js",
+    "verify:user-content-return": "node scripts/verify-user-content-return.js",
+    "summarize:steam-lobby": "node scripts/summarize-steam-lobby-log.js"
   },
   "engines": {
     "node": ">=16"
