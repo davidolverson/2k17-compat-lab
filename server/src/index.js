@@ -11,105 +11,72 @@ function loadConfig(configPath) {
 
 async function main() {
   const configPath = process.argv[2];
-
   if (!configPath) {
-    process.stderr.write(
-      'Usage: node server/src/index.js <config.json>\n',
-    );
+    process.stderr.write('Usage: node server/src/index.js <config.json>\n');
     process.exitCode = 2;
     return;
   }
 
   const config = loadConfig(configPath);
-
   const app = createHttpsCaptureServer({
     ...config,
-
-    onCapture: ({
-      record,
-      rawMetadataPath,
-      rawBodyPath,
-      sanitizedPath,
-    }) => {
+    onCapture: ({ record, rawMetadataPath, rawBodyPath, sanitizedPath }) => {
       process.stdout.write(
-        '[capture] ' +
-          record.captureId +
-          ' ' +
-          record.method +
-          ' ' +
-          record.path +
-          ' body=' +
-          record.bodyLength +
-          ' sha256=' +
-          record.bodySha256 +
-          '\n',
+        '[capture] ' + record.captureId + ' ' + record.method + ' ' + record.path +
+        ' body=' + record.bodyLength +
+        ' stored=' + record.storedBodyLength +
+        ' truncated=' + record.bodyTruncated +
+        ' sha256=' + record.bodySha256 + '\n',
       );
-      process.stdout.write(
-        '[capture] raw metadata: ' + rawMetadataPath + '\n',
-      );
-      process.stdout.write(
-        '[capture] raw body: ' + rawBodyPath + '\n',
-      );
+      process.stdout.write('[capture] raw metadata: ' + rawMetadataPath + '\n');
+      process.stdout.write('[capture] raw body: ' + rawBodyPath + '\n');
       if (sanitizedPath) {
-        process.stdout.write(
-          '[capture] sanitized: ' + sanitizedPath + '\n',
+        process.stdout.write('[capture] sanitized: ' + sanitizedPath + '\n');
+      }
+    },
+    onTlsClientError: ({ error, remoteAddress, remotePort }) => {
+      process.stderr.write(
+        '[tls] client error from ' + remoteAddress + ':' + remotePort +
+        ' code=' + (error.code || '') +
+        ' message=' + error.message + '\n',
+      );
+    },
+    onTlsEstablished: (event) => {
+      process.stdout.write(
+        '[tls] established ' + event.protocol + ' ' + event.cipher +
+        ' sni=' + (event.servername || '') + '\n',
+      );
+    },
+    onEvent: (kind, data) => {
+      if (kind === 'ipv6.bind.failed') {
+        process.stderr.write(
+          '[server] ipv6.bind.failed code=' + (data.code || '') +
+          ' message=' + (data.message || '') + '\n',
         );
       }
     },
-
-    onTlsClientError: ({
-      error,
-      remoteAddress,
-      remotePort,
-    }) => {
-      process.stderr.write(
-        '[tls] client error from ' +
-          remoteAddress +
-          ':' +
-          remotePort +
-          ' code=' +
-          (error.code || '') +
-          ' message=' +
-          error.message +
-          '\n',
-      );
-    },
-
-    onTlsEstablished: (event) => {
-      process.stdout.write(
-        '[tls] established ' +
-          event.protocol +
-          ' ' +
-          event.cipher +
-          ' sni=' +
-          (event.servername || '') +
-          '\n',
-      );
-    },
-
     onError: (error) => {
       process.stderr.write(
         '[server] capture error: ' +
-          (error.stack || error.message) +
-          '\n',
+        (error.stack || error.message) + '\n',
       );
     },
   });
 
   const address = await app.start();
-
   process.stdout.write(
     '[server] capture-first HTTPS listener on ' +
-      address.address +
-      ':' +
-      address.port +
-      '\n',
+    address.address + ':' + address.port + '\n',
   );
-
+  if (address.ipv6) {
+    process.stdout.write(
+      '[server] IPv6 loopback listener on ' +
+      address.ipv6.address + ':' + address.ipv6.port + '\n',
+    );
+  }
   process.stdout.write(
     '[server] fallback response profile: ' +
-      (config.fallbackProfile || 'CAPTURE_ONLY_404') +
-      '\n',
+    (config.fallbackProfile || 'CAPTURE_ONLY_404') + '\n',
   );
 
   const stop = async () => {
@@ -120,7 +87,6 @@ async function main() {
       process.exit(0);
     }
   };
-
   process.on('SIGINT', stop);
   process.on('SIGTERM', stop);
 }
@@ -134,6 +100,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = {
-  loadConfig,
-};
+module.exports = { loadConfig };
