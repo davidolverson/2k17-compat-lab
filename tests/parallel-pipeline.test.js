@@ -3,6 +3,10 @@
 const {
   compareStructureReports,
 } = require('../server/src/artifact/compare-structure');
+const {
+  isLoopbackHost,
+  normalizeConfig,
+} = require('../scripts/run-parallel-reconstruction');
 
 module.exports = function registerParallelPipelineTests({ test, assert }) {
   test('structure comparator separates shared and changed protocol strings', () => {
@@ -84,4 +88,28 @@ module.exports = function registerParallelPipelineTests({ test, assert }) {
       /do not identify protocol semantics/i,
     );
   });
+  test('parallel reconstruction runner is loopback-only and claim-neutral', () => {
+    assert.equal(isLoopbackHost('127.0.0.1'), true);
+    assert.equal(isLoopbackHost('::1'), true);
+    assert.equal(isLoopbackHost('localhost'), true);
+    assert.equal(isLoopbackHost('0.0.0.0'), false);
+
+    const config = normalizeConfig({
+      websocket: { host: '127.0.0.1', port: 0 },
+      udp: { host: '::1', port: 0, family: 'udp6' },
+    });
+
+    assert.equal(config.websocket.host, '127.0.0.1');
+    assert.equal(config.udp.host, '::1');
+
+    assert.throws(
+      () => normalizeConfig({ websocket: { host: '0.0.0.0' } }),
+      /loopback-only/,
+    );
+    assert.throws(
+      () => normalizeConfig({ udp: { host: '192.0.2.1' } }),
+      /loopback-only/,
+    );
+  });
+
 };
