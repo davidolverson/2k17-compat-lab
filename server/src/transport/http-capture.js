@@ -1,5 +1,6 @@
 'use strict';
 
+const crypto = require('node:crypto');
 const { selectResponseProfile } = require('../response/profiles');
 
 function headerValue(headers, name) {
@@ -29,43 +30,57 @@ function collectRequestBody(req, options = {}) {
 
   return new Promise((resolve, reject) => {
     const chunks = [];
-    let total = 0;
-    let overflow = false;
+    const hash = crypto.createHash('sha256');
+    let storedBytes = 0;
+    let totalBytes = 0;
+    let settled = false;
+
+    function finish(error) {
+      if (settled) return;
+      settled = true;
+      const capture = {
+        body: Buffer.concat(chunks, storedBytes),
+        totalBytes,
+        storedBytes,
+        truncated: totalBytes > storedBytes,
+        bodySha256: hash.digest('hex'),
+      };
+      if (error) {
+        error.capture = capture;
+        reject(error);
+      } else {
+        resolve(capture);
+      }
+    }
 
     req.on('data', (chunk) => {
+      if (settled) return;
       const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-      total += bytes.length;
-      if (total > maxBodyBytes) {
-        overflow = true;
-        return;
+      totalBytes += bytes.length;
+      hash.update(bytes);
+
+      if (storedBytes >= maxBodyBytes) return;
+      const room = maxBodyBytes - storedBytes;
+      const kept = bytes.length <= room ? bytes : bytes.subarray(0, room);
+      if (kept.length) {
+        chunks.push(Buffer.from(kept));
+        storedBytes += kept.length;
       }
-      chunks.push(bytes);
     });
 
-    req.on('end', () => {
-      if (overflow) {
-        const error = new Error('request body exceeds configured limit');
-        error.code = 'BODY_TOO_LARGE';
-        error.totalBytes = total;
-        error.maxBodyBytes = maxBodyBytes;
-        reject(error);
-        return;
-      }
-
-      resolve({
-        body: Buffer.concat(chunks),
-        totalBytes: total,
-        truncated: false,
-      });
-    });
-
-    req.on('aborted', () => {
+    req.once('end', () => finish(null));
+    req.once('aborted', () => {
       const error = new Error('request aborted by peer');
       error.code = 'REQUEST_ABORTED';
-      reject(error);
+      finish(error);
     });
-
-    req.on('error', reject);
+    req.once('error', (error) => finish(error));
+    req.once('close', () => {
+      if (settled || req.complete === true) return;
+      const error = new Error('request closed before completion');
+      error.code = 'REQUEST_CLOSED';
+      finish(error);
+    });
   });
 }
 
@@ -103,11 +118,7 @@ function sendResponse(res, profile, extraHeaders = {}) {
   const body = Buffer.isBuffer(profile.body)
     ? profile.body
     : Buffer.from(profile.body || '');
-
-  const headers = {
-    ...(profile.headers || {}),
-    ...extraHeaders,
-  };
+  const headers = { ...(profile.headers || {}), ...extraHeaders };
 
   if (
     !Object.keys(headers).some(
@@ -127,59 +138,56 @@ function createCaptureHandler(options) {
   }
 
   const store = options.captureStore;
-  const rules = Array.isArray(options.responseRules)
-    ? options.responseRules
-    : [];
+  const rules = Array.isArray(options.responseRules) ? options.responseRules : [];
   const fallbackProfile = options.fallbackProfile || 'CAPTURE_ONLY_404';
   const maxBodyBytes =
     options.maxBodyBytes === undefined ? 1024 * 1024 : options.maxBodyBytes;
   const autoExportSanitized = Boolean(options.autoExportSanitized);
 
+  function persist(descriptor, collected, profile) {
+    const saved = store.persistRequest({
+      ...descriptor,
+      body: collected.body,
+      bodyLength: collected.totalBytes,
+      bodySha256: collected.bodySha256,
+      bodyTruncated: collected.truncated,
+      responseProfile: profile,
+      evidenceContext: options.evidenceContext || null,
+    });
+
+    let sanitizedPath = null;
+    if (autoExportSanitized) {
+      sanitizedPath = store.exportSanitized(saved.record).filePath;
+    }
+
+    if (typeof options.onCapture === 'function') {
+      options.onCapture({
+        record: saved.record,
+        rawMetadataPath: saved.metadataPath,
+        rawBodyPath: saved.bodyPath,
+        sanitizedPath,
+      });
+    }
+    return saved;
+  }
+
   return async function captureHandler(req, res) {
     const descriptor = requestDescriptor(req);
-    const profile = selectResponseProfile(
-      descriptor,
-      rules,
-      fallbackProfile,
-    );
+    const profile = selectResponseProfile(descriptor, rules, fallbackProfile);
 
     try {
       const collected = await collectRequestBody(req, { maxBodyBytes });
-
-      const saved = store.persistRequest({
-        ...descriptor,
-        body: collected.body,
-        bodyTruncated: collected.truncated,
-        responseProfile: profile,
-        evidenceContext: options.evidenceContext || null,
-      });
-
-      let sanitizedPath = null;
-      if (autoExportSanitized) {
-        sanitizedPath = store.exportSanitized(saved.record).filePath;
-      }
-
-      if (typeof options.onCapture === 'function') {
-        options.onCapture({
-          record: saved.record,
-          rawMetadataPath: saved.metadataPath,
-          rawBodyPath: saved.bodyPath,
-          sanitizedPath,
-        });
-      }
-
-      sendResponse(res, profile, {
-        'X-Compat-Lab-Profile': profile.id,
-      });
+      persist(descriptor, collected, profile);
+      sendResponse(res, profile);
     } catch (error) {
-      if (error && error.code === 'BODY_TOO_LARGE') {
-        sendResponse(res, {
-          id: 'BODY_TOO_LARGE',
-          status: 413,
-          headers: { 'Content-Type': 'text/plain' },
-          body: Buffer.alloc(0),
-        });
-        return;
+      if (error && error.capture) {
+        try {
+          persist(descriptor, error.capture, null);
+        } catch (persistError) {
+          if (typeof options.onError === 'function') {
+            options.onError(persistError);
+          }
+        }
       }
 
       if (typeof options.onError === 'function') options.onError(error);
@@ -192,11 +200,7 @@ function createCaptureHandler(options) {
           body: Buffer.alloc(0),
         });
       } else {
-        try {
-          res.end();
-        } catch (_) {
-          // Response is already closed.
-        }
+        try { res.end(); } catch (_) {}
       }
     }
   };
