@@ -1,6 +1,6 @@
 {
   "schema": "2k17-compat-lab.evidence-ledger.v1",
-  "updatedUtc": "2026-10-05T04:40:00.000Z",
+  "updatedUtc": "2026-10-05T05:00:00.000Z",
   "entries": [
     {
       "id": "E001",
@@ -185,6 +185,74 @@
         }
       ],
       "notes": "Package version labeling does not establish a specific NBA2K17.exe file version, Steam build ID or executable hash."
+    },
+    {
+      "id": "E013",
+      "claim": "Contemporary NBA 2K17 PC reports place SYNC.BIN under Steam/userdata/<user>/385760/local and say it is created or written near startup before the main menus.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM_HIGH",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://steamcommunity.com/app/385760/discussions/0/343786746002440359/"
+        }
+      ],
+      "notes": "One user estimated the resulting file at roughly 900 MB. Treat that size as anecdotal, not canonical."
+    },
+    {
+      "id": "E014",
+      "claim": "A contemporary NBA 2K17 Steam support thread reports that removing the 385760 remote data caused the game to report corruption and redownload files from 2K servers, after which the affected modes worked again.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://steamcommunity.com/app/385760/discussions/0/343787283753311329/"
+        }
+      ],
+      "notes": "Supports server-backed restore/sync behavior in the user-data area. It does not identify the exact transport or which files were fetched by the HTTP API versus other services."
+    },
+    {
+      "id": "E015",
+      "claim": "Historical NBA 2K17 modding documentation distinguishes SYNC.BIN in the local directory from roster files such as Roster0001 and RosterDescriptions in remote, and describes official roster/update data as normally downloaded by legitimate copies from game servers.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://game.ali213.net/forum.php?extra=page%3D1&mod=viewthread&ordertype=2&tid=6120065"
+        },
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://www.cr173.com/soft/328984.html"
+        }
+      ],
+      "notes": "Useful for cache-file roles and layout. Third-party redistributed files are not accepted as canonical original byte content."
+    },
+    {
+      "id": "E016",
+      "claim": "Historical 2K17 modding pages report that SYNC.BIN affects default/content data and may need to be edited for some court/content mods; the NLSC 2K17 archive also lists a 2016 tutorial specifically about preventing 2K SYNC.BIN updates.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://www.moddingway.com/file/229426/minnesota-timberwolves-2017-2018-court"
+        },
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://www.moddingway.com/file/229517/philadelphia-76ers-2017-2018-court"
+        },
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://nba-live.com/forums/viewforum.php?f=225&start=300"
+        }
+      ],
+      "notes": "Supports SYNC.BIN as a server-updated/default-content artifact candidate. Internal container format remains unknown."
     }
   ]
 }
