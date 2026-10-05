@@ -32,7 +32,9 @@ module.exports = function registerGraniteSummaryTests({ test, assert }) {
     assert.equal(summary.httpRequests, 3);
     assert.equal(summary.uniqueRoutes, 2);
     assert.equal(summary.gameAttributedRequests, null);
-    assert.equal(summary.routes[1].count, 2);
+    const update = summary.routes.find((route) => route.path === '/nba/2k17/Session/update');
+    assert.ok(update);
+    assert.equal(update.count, 2);
     assert.deepEqual(summary.claimsPromoted, []);
     assert.ok(summary.limitations.length >= 1);
   });
