@@ -1,0 +1,15 @@
+{
+  "about": "Reviewed exceptions to check-forbidden.js. One entry covers one rule in one file. An entry that no longer matches anything fails the check, so this list cannot rot.",
+  "allow": [
+    {
+      "path": "tools/m001/m001.test.js",
+      "rule": "steamid64",
+      "reason": "Synthetic value in the platform-id range, used to prove the sanitizer redacts it. Not a real account."
+    },
+    {
+      "path": "tools/m001/sanitizer.test.js",
+      "rule": "steamid64",
+      "reason": "Synthetic value in the platform-id range, used to prove the sanitizer redacts it. Not a real account."
+    }
+  ]
+}

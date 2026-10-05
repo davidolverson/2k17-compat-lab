@@ -1,0 +1,17 @@
+{
+  "name": "2k17-compat-lab",
+  "private": true,
+  "description": "Clean-room compatibility research: sanitized fixtures, evidence ledgers and the tools that check them. No runtime, no game files.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"tools/**/*.test.js\"",
+    "check:state": "node tools/repo/check-state.js",
+    "check:evidence": "node tools/repo/validate-evidence.js",
+    "check:forbidden": "node tools/repo/check-forbidden.js",
+    "check:workflows": "node tools/repo/check-workflows.js",
+    "check": "npm run check:state && npm run check:evidence && npm run check:forbidden && npm run check:workflows",
+    "ci": "npm test && npm run check"
+  }
+}
