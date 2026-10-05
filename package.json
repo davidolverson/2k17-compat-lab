@@ -7,7 +7,10 @@
     "test": "node tests/run.js",
     "start:capture": "node server/src/index.js server/config.local.json",
     "import:evidence": "node scripts/import-sanitized-capture.js",
-    "hash:artifact": "node scripts/hash-cache-artifact.js"
+    "hash:artifact": "node scripts/hash-cache-artifact.js",
+    "analyze:artifact": "node scripts/analyze-cache-artifact.js",
+    "capture:ws": "node scripts/start-websocket-capture.js server/realtime.websocket.local.json",
+    "capture:udp": "node scripts/start-udp-capture.js server/realtime.udp.local.json"
   },
   "engines": {
     "node": ">=16"
