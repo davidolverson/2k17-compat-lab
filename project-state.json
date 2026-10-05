@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "kind": "project-state",
+  "about": "Single machine-readable source of truth for project status. README and docs point here and do not restate status. Statuses: MET needs committed evidence tied to an experiment manifest; REPORTED_UNPROVEN was reported by a live session and has no manifest; NOT_MET has no qualifying evidence. Change this file only from evidence, in the same commit as the evidence or the reconciliation note that justifies it.",
+  "updated_at_utc": "2026-10-05T14:45:50Z",
+  "updated_from": "docs/truth-reconciliation-2026-10-05.md",
+  "milestone": {
+    "id": "M001",
+    "name": "Online Foundation",
+    "status": "ACTIVE",
+    "contract": ["docs/UP_NEXT_MASTER_SPEC.md", "docs/milestone-001-online.md"]
+  },
+  "acceptance": [
+    {
+      "id": 1,
+      "condition": "known-compatible client establishes and maintains a replacement-service session",
+      "status": "REPORTED_UNPROVEN",
+      "evidence": ["docs/m001-park-audit.md"],
+      "note": "Session held across keep-alives in captures; structural smoke regression passes. No experiment manifest, and the client used does not qualify (blocker B1)."
+    },
+    {
+      "id": 2,
+      "condition": "client enters interactive Park/world state",
+      "status": "REPORTED_UNPROVEN",
+      "evidence": [],
+      "note": "Reported in issue #1 against runtime commit da885da18d16767c44991ebb91045866d67716ec with an experimental solo-host relay echo. No sanitized evidence and no manifest are committed here."
+    },
+    {
+      "id": 3,
+      "condition": "result reproduces after clean replacement-service restart",
+      "status": "NOT_MET",
+      "evidence": [],
+      "note": "No recorded restart reproduction of Park entry."
+    },
+    {
+      "id": 4,
+      "condition": "second independent client reaches the same interactive state",
+      "status": "NOT_MET",
+      "evidence": [],
+      "note": "Never attempted. Synthetic two-participant relay tests exist in the runtime and are not client evidence."
+    },
+    {
+      "id": 5,
+      "condition": "two clients receive distinct internal player IDs and session IDs",
+      "status": "NOT_MET",
+      "evidence": [],
+      "note": "Depends on condition 4."
+    },
+    {
+      "id": 6,
+      "condition": "no critical successful path depends on generic fallback",
+      "status": "NOT_MET",
+      "evidence": ["tools/m001/route-classification.json"],
+      "note": "TopRepPlayer, ParkSummary and ParkRep are classified generic-fallback; smoke regression reports all three as acceptance advisories."
+    },
+    {
+      "id": 7,
+      "condition": "required behavior is tied to an exact committed runtime source state",
+      "status": "NOT_MET",
+      "evidence": [],
+      "note": "The live server and relay processes were started before the commits now at the runtime HEAD (blocker B3)."
+    },
+    {
+      "id": 8,
+      "condition": "explicit experiment manifest identifies client hash/config/source commits",
+      "status": "NOT_MET",
+      "evidence": [],
+      "note": "No experiment manifest exists yet. Schema and validator: tools/m001/gate.js; template: evidence/manifests/TEMPLATE.md."
+    },
+    {
+      "id": 9,
+      "condition": "sanitized evidence is committed",
+      "status": "NOT_MET",
+      "evidence": ["evidence/m001", "sanitized-fixtures/m001"],
+      "note": "Committed evidence ends at the relay dependency (commit 1a8d4a8e14c8d7b3ac223ad17b32c15b52e6aa90). Nothing is committed for Park entry or later."
+    },
+    {
+      "id": 10,
+      "condition": "acceptance suite passes with zero skips",
+      "status": "NOT_MET",
+      "evidence": ["tools/m001/regress.js"],
+      "note": "Acceptance mode exists and fails closed. It has never passed."
+    },
+    {
+      "id": 11,
+      "condition": "classification mismatches are zero",
+      "status": "NOT_MET",
+      "evidence": [],
+      "note": "Zero in the committed ledgers, which predate the accepted path. Not yet measured on a qualifying run."
+    },
+    {
+      "id": 12,
+      "condition": "current-state documentation is updated from evidence, not memory",
+      "status": "NOT_MET",
+      "evidence": ["docs/truth-reconciliation-2026-10-05.md"],
+      "note": "This file and the reconciliation note start it. The Master Spec section 5 chain is stale (blocker B4)."
+    }
+  ],
+  "frontier": {
+    "summary": "Two-client proof. The relay question in the Master Spec (who ends the ten-second session) has an answer reported by the live lane but no committed evidence.",
+    "reported_unproven": [
+      "The ten-second relay termination is client-driven: the client sends an explicit leave when no datagram reaches it.",
+      "A solo-host echo keeps the session alive; it is an experiment flag, not a protocol fact.",
+      "A non-zero RELAY_REGION in the accepted search reply preceded Park entry.",
+      "A Got Next spot is claimed and released through park/interlockedupdate."
+    ],
+    "unknown": [
+      "What the original service sent in any Park or relay reply.",
+      "Meaning of every relay datagram beyond the structural header; all remain UNKNOWN_*.",
+      "Behaviour with a second real participant, court start, and the stale-version conflict path.",
+      "Whether World/connect or park/create exist for this client: neither has been observed."
+    ]
+  },
+  "blockers": [
+    {
+      "id": "B1",
+      "title": "Client used for live experiments does not qualify as licensed-unmodified",
+      "class": "SECURITY_BOUNDARY",
+      "owner": "human",
+      "detail": "Master Spec invariant 13 and section 29. No experiment so far records client.supply = licensed-unmodified, so its results are discovery only and cannot be promoted to FACT or close any gate. Live protocol experimentation by autonomous agents is stopped on this path until a qualifying client is in place."
+    },
+    {
+      "id": "B2",
+      "title": "Second independent client",
+      "class": "PREREQUISITE",
+      "owner": "human",
+      "detail": "Conditions 4 and 5 need a second machine with its own qualifying install and a distinct identity."
+    },
+    {
+      "id": "B3",
+      "title": "Live runtime is not attributable to a commit",
+      "class": "PROVENANCE",
+      "owner": "live-lane",
+      "detail": "Restart the server and relay from a clean checkout of a recorded commit before any run that is meant to be evidence."
+    },
+    {
+      "id": "B4",
+      "title": "Master Spec section 5 and the execution contract describe a superseded frontier",
+      "class": "DOCUMENTATION",
+      "owner": "human",
+      "detail": "The spec is locked, so it was not edited. Proposed wording is in the reconciliation note."
+    },
+    {
+      "id": "B5",
+      "title": "Runtime lineage is not clean-room and is under a noncommercial licence",
+      "class": "LEGAL",
+      "owner": "human",
+      "detail": "The replacement runtime is an adaptation of a third-party server for a later title, licensed PolyForm Noncommercial 1.0.0. The Master Spec describes clean-room research and a product platform. Needs a deliberate decision before any product code depends on it. See docs/license-decision.md."
+    },
+    {
+      "id": "B6",
+      "title": "Public history contains values the current tree no longer publishes",
+      "class": "PRIVACY",
+      "owner": "human",
+      "detail": "Truncated raw-body digests and account names remain in earlier commits. History rewriting needs explicit authorization. Plan: docs/privacy-history-cleanup-plan.md."
+    },
+    {
+      "id": "B7",
+      "title": "No project licence chosen",
+      "class": "LEGAL",
+      "owner": "human",
+      "detail": "Deliberately left undecided. See docs/license-decision.md."
+    }
+  ],
+  "evidence_base": {
+    "newest_committed_evidence_commit": "1a8d4a8e14c8d7b3ac223ad17b32c15b52e6aa90",
+    "runtime_repo": "granite-2k17 (private)",
+    "runtime_head_at_reconciliation": "dbdf3650bb2a87b13da86f90cd6eb7b698f254b7",
+    "experiment_manifests": 0
+  },
+  "tracks": {
+    "A_compatibility": "ACTIVE: blocked on B1, B2, B3",
+    "B_repository_hardening": "ACTIVE: branch work/repo-hardening",
+    "C_product": "NOT_STARTED in this repository; gated on Track A confidence"
+  }
+}
