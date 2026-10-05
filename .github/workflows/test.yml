@@ -29,3 +29,19 @@ jobs:
       - name: Run Mission 4 server test suite
         working-directory: server
         run: npm test
+
+  windows-parallel-smoke:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Exercise one-command Windows smoke path
+        shell: powershell
+        run: .\scripts\run-parallel.ps1 -Smoke
