@@ -22,7 +22,8 @@
     "summarize:routes": "node scripts/summarize-route-log.js",
     "summarize:granite": "node scripts/summarize-granite-log.js",
     "verify:user-content-return": "node scripts/verify-user-content-return.js",
-    "summarize:steam-lobby": "node scripts/summarize-steam-lobby-log.js"
+    "summarize:steam-lobby": "node scripts/summarize-steam-lobby-log.js",
+    "diff:routes": "node scripts/diff-probe-summaries.js"
   },
   "engines": {
     "node": ">=16"
