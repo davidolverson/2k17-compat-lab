@@ -56,3 +56,9 @@ node_modules/
 # --- OS noise ---
 Thumbs.db
 desktop.ini
+
+# --- replacement-server local evidence/config (never commit) ---
+server/captures/
+server/logs/
+server/certs/
+server/config.local.json
