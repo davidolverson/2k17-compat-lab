@@ -195,6 +195,7 @@ require('./evidence.test')({ test, assert });
 require('./public-evidence.test')({ test, assert });
 require('./cache-artifact.test')({ test, assert });
 require('./realtime.test')({ test, assert });
+require('./parallel-pipeline.test')({ test, assert });
 require('./request-analysis.test')({ test, assert });
 require('./artifact-analysis.test')({ test, assert });
 
