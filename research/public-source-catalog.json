@@ -1,6 +1,6 @@
 {
   "schema": "2k17-compat-lab.public-source-catalog.v1",
-  "updatedUtc": "2026-10-05T04:30:00.000Z",
+  "updatedUtc": "2026-10-05T04:40:00.000Z",
   "sources": [
     {
       "id": "P001",
@@ -111,6 +111,18 @@
       "confidence": "LOW",
       "claims": [
         "published PC port-forward ranges include TCP and UDP gameplay/Steam ranges"
+      ]
+    },
+    {
+      "id": "P009",
+      "title": "CK's Game HOSTS FilterList backup",
+      "url": "https://gist.github.com/Lichtenshtein/39948d25d7f93b3d17dbe0be66a6388e",
+      "date": "2018-11-07",
+      "sourceType": "HISTORICAL_HOST_LIST",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "claims": [
+        "2018-era host list places nba2k17-ws.2ksports.com directly under NBA 2K17"
       ]
     }
   ]
