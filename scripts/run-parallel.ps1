@@ -1,7 +1,8 @@
 param(
   [string]$Config = "server\parallel-reconstruction.local.json",
   [string]$ArtifactPath = "",
-  [switch]$SkipTests
+  [switch]$SkipTests,
+  [switch]$Smoke
 )
 
 $ErrorActionPreference = "Stop"
@@ -23,6 +24,12 @@ if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
 
 if (-not (Test-Path "package.json")) {
   Fail "package.json not found. Run this script from the repository checkout."
+}
+
+if ($Smoke) {
+  Write-Host "[parallel] Running synthetic end-to-end smoke test..."
+  npm run smoke:parallel
+  exit $LASTEXITCODE
 }
 
 if (-not $SkipTests) {
