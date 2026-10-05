@@ -1,6 +1,6 @@
 {
   "schema": "2k17-compat-lab.public-source-catalog.v1",
-  "updatedUtc": "2026-10-05T04:40:00.000Z",
+  "updatedUtc": "2026-10-05T05:00:00.000Z",
   "sources": [
     {
       "id": "P001",
@@ -123,6 +123,71 @@
       "confidence": "MEDIUM",
       "claims": [
         "2018-era host list places nba2k17-ws.2ksports.com directly under NBA 2K17"
+      ]
+    },
+    {
+      "id": "P010",
+      "title": "96064c5a — NBA 2K17 General Discussions",
+      "url": "https://steamcommunity.com/app/385760/discussions/0/343786746002440359/",
+      "date": "2016-09-16",
+      "sourceType": "CONTEMPORARY_STEAM_FORUM",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM_HIGH",
+      "claims": [
+        "SYNC.BIN is located under Steam userdata app 385760 local",
+        "SYNC.BIN is written/created near startup before menus",
+        "one user observed the file eventually using roughly 900 MB"
+      ]
+    },
+    {
+      "id": "P011",
+      "title": "Help me Plz — NBA 2K17 General Discussions",
+      "url": "https://steamcommunity.com/app/385760/discussions/0/343787283753311329/",
+      "date": "2016-09-23",
+      "sourceType": "CONTEMPORARY_STEAM_FORUM",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "claims": [
+        "removing the 385760 remote folder triggered a game corruption warning and server-backed file redownload in a reported successful recovery"
+      ]
+    },
+    {
+      "id": "P012",
+      "title": "HAN roster for NBA 2K17",
+      "url": "https://game.ali213.net/forum.php?extra=page%3D1&mod=viewthread&ordertype=2&tid=6120065",
+      "date": "2017",
+      "sourceType": "HISTORICAL_MODDING_FORUM",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "claims": [
+        "legitimate copies normally downloaded roster updates through game servers",
+        "SYNC.BIN belongs in local",
+        "Roster0001 and RosterDescriptions belong in remote"
+      ]
+    },
+    {
+      "id": "P013",
+      "title": "NBA2K17 launch-day official roster update",
+      "url": "https://www.cr173.com/soft/328984.html",
+      "date": "2016-09-18",
+      "sourceType": "HISTORICAL_MODDING_ARCHIVE",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "LOW_MEDIUM",
+      "claims": [
+        "a launch-day official roster update was distributed as SYNC.BIN by a third-party archive"
+      ]
+    },
+    {
+      "id": "P014",
+      "title": "NBA 2K17 modding pages requiring SYNC.BIN edits",
+      "url": "https://www.moddingway.com/file/229426/minnesota-timberwolves-2017-2018-court",
+      "date": "2018-03-03",
+      "sourceType": "HISTORICAL_MODDING_ARCHIVE",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "claims": [
+        "some 2K17 content mods required editing SYNC.BIN",
+        "SYNC.BIN therefore participates in default/content data consumed by the client"
       ]
     }
   ]
