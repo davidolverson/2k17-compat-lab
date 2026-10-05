@@ -35,11 +35,17 @@ function parseWebSocketFrames(buffer) {
     let payloadLength = b1 & 0x7f;
 
     if (payloadLength === 126) {
-      if (offset + 2 > buffer.length) break;
+      if (offset + 2 > buffer.length) {
+        offset = start;
+        break;
+      }
       payloadLength = buffer.readUInt16BE(offset);
       offset += 2;
     } else if (payloadLength === 127) {
-      if (offset + 8 > buffer.length) break;
+      if (offset + 8 > buffer.length) {
+        offset = start;
+        break;
+      }
       const length64 = buffer.readBigUInt64BE(offset);
       offset += 8;
       if (length64 > BigInt(Number.MAX_SAFE_INTEGER)) {
@@ -50,12 +56,18 @@ function parseWebSocketFrames(buffer) {
 
     let mask = null;
     if (masked) {
-      if (offset + 4 > buffer.length) break;
+      if (offset + 4 > buffer.length) {
+        offset = start;
+        break;
+      }
       mask = Buffer.from(buffer.subarray(offset, offset + 4));
       offset += 4;
     }
 
-    if (offset + payloadLength > buffer.length) break;
+    if (offset + payloadLength > buffer.length) {
+      offset = start;
+      break;
+    }
 
     const wirePayload = Buffer.from(
       buffer.subarray(offset, offset + payloadLength),
