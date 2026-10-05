@@ -1,0 +1,14 @@
+{
+  "hypothesis": "H1",
+  "variable": {
+    "name": "park-summary-response-profile",
+    "before": "baseline",
+    "after": "candidate-v1"
+  },
+  "serverCommit": "REPLACE_WITH_EXACT_COMMIT",
+  "clientState": "Park loading screen",
+  "loadPercentBefore": 30,
+  "loadPercentAfter": 30,
+  "outcome": "NO_CHANGE",
+  "observation": "Replace with exactly what changed on screen or in transport."
+}
