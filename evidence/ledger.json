@@ -1,6 +1,6 @@
 {
   "schema": "2k17-compat-lab.evidence-ledger.v1",
-  "updatedUtc": "2026-10-05T00:00:00.000Z",
+  "updatedUtc": "2026-10-05T04:35:00.000Z",
   "entries": [
     {
       "id": "E001",
@@ -71,6 +71,116 @@
         }
       ],
       "notes": "This is not evidence that NBA 2K17 uses the same framing."
+    },
+    {
+      "id": "E006",
+      "claim": "A Plutonium administrator reported that their prior NBA 2K17 investigation found an HTTP API for most live-service tasks with custom/binary body serialization.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://forum.plutonium.pw/topic/26595/project-idea-nba-2k16/7"
+        }
+      ],
+      "notes": "Supports existence of an HTTP API and some binary/custom serialization, but not exact framing, routes, field IDs or VcFieldList compatibility."
+    },
+    {
+      "id": "E007",
+      "claim": "A Plutonium administrator reported that the NBA 2K17 backend expected a special HTTPS client certificate.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://forum.plutonium.pw/topic/26595/project-idea-nba-2k16/7"
+        },
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://reverseengineering.stackexchange.com/questions/32011/how-could-i-extract-a-certificate-and-private-key-out-of-a-exe"
+        }
+      ],
+      "notes": "The second source independently shows an NBA 2K17 server-emulator researcher believed mTLS/client-certificate auth was in use. Exact certificate format, key location, route coverage and universal requirement remain unverified."
+    },
+    {
+      "id": "E008",
+      "claim": "A Plutonium administrator reported that NBA 2K17 game traffic used a combination of WebSockets and UDP, with WebSockets appearing to serve neighborhood/Park behavior and UDP the actual match.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://forum.plutonium.pw/topic/26595/project-idea-nba-2k16/7"
+        }
+      ],
+      "notes": "This is a specific prior-investigation report, not a packet capture. Exact WebSocket endpoint, handshake, UDP ports and packet formats remain unknown."
+    },
+    {
+      "id": "E009",
+      "claim": "A Plutonium administrator reported that NBA 2K17 caches some files obtained from its HTTP API on disk.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "LOW_MEDIUM",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://forum.plutonium.pw/topic/26595/project-idea-nba-2k16/7"
+        }
+      ],
+      "notes": "The source suggests updated player lists/small patches as examples but does not publish filenames, hashes or cache paths."
+    },
+    {
+      "id": "E010",
+      "claim": "Revival's first-party status page separates its NBA 2K17 replacement infrastructure into Revival API, game servers handling login/matchmaking/game wire, and Park servers.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "HIGH",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://revivalclient.net/status"
+        }
+      ],
+      "notes": "This is evidence about Revival's replacement architecture, not proof that the original 2K17 production backend used the same topology."
+    },
+    {
+      "id": "E011",
+      "claim": "Revival publicly reported a live NBA 2K17 beta with playable MyCareer in July 2026 and currently lists Play Now Online, MyCourt and MyPARK as service modes.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "HIGH",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://revivalclient.net/news/revival-launcher-release"
+        },
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://revivalclient.net/status"
+        }
+      ],
+      "notes": "Strong evidence of replacement-service feasibility and feature coverage, but no wire-schema details."
+    },
+    {
+      "id": "E012",
+      "claim": "Preserve's first-party NBA 2K17 page lists an available 69.2 GB package labeled version 1.0.1; the public Preserve client documents SHA-256 verification for downloaded files.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "HIGH",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://preserve.st/games/2k17"
+        },
+        {
+          "kind": "PUBLIC_GITHUB",
+          "locator": "PreserveTeam/Preserve:README.md"
+        }
+      ],
+      "notes": "Package version labeling does not establish a specific NBA2K17.exe file version, Steam build ID or executable hash."
     }
   ]
 }
