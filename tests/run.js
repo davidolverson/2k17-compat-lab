@@ -220,6 +220,9 @@ require('./request-analysis.test')({ test, assert });
 require('./artifact-analysis.test')({ test, assert });
 require('./handoff.test')({ test, assert });
 require('./probe-summary.test')({ test, assert });
+require('./park-experiment.test')({ test, assert });
+require('./probe-diff.test')({ test, assert });
+require('./persistence.test')({ test, assert });
 
 async function main() {
   let passed = 0;
