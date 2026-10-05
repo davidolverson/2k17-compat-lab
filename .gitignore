@@ -62,3 +62,5 @@ server/captures/
 server/logs/
 server/certs/
 server/config.local.json
+server/realtime.websocket.local.json
+server/realtime.udp.local.json
