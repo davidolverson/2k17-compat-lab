@@ -182,20 +182,18 @@ module.exports = function registerTransportTests({ test, assert }) {
     assert.deepEqual(collected.body, Buffer.from('abcdef'));
   });
 
-  test('bounded body collector rejects bodies over limit', async () => {
-    const request = Readable.from([Buffer.alloc(6)]);
+  test('bounded body collector hashes full body while retaining only configured prefix', async () => {
+    const request = Readable.from([Buffer.from('abcdef')]);
 
-    let failure = null;
-    try {
-      await collectRequestBody(request, { maxBodyBytes: 5 });
-    } catch (error) {
-      failure = error;
-    }
+    const collected = await collectRequestBody(request, {
+      maxBodyBytes: 5,
+    });
 
-    assert.ok(failure);
-    assert.equal(failure.code, 'BODY_TOO_LARGE');
-    assert.equal(failure.totalBytes, 6);
-    assert.equal(failure.maxBodyBytes, 5);
+    assert.equal(collected.totalBytes, 6);
+    assert.equal(collected.storedBytes, 5);
+    assert.equal(collected.truncated, true);
+    assert.deepEqual(collected.body, Buffer.from('abcde'));
+    assert.match(collected.bodySha256, /^[0-9a-f]{64}$/);
   });
 
   test('sanitized capture never copies a raw query string', () => {
