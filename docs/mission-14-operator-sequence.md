@@ -65,16 +65,33 @@ Do not alter lobby return values in the same run used to establish the baseline.
 
 ## Lane C — H4 relay observation
 
-In parallel with H3, observe without implementing a new relay:
+In parallel with H3, observe without implementing a new relay.
 
-- new local sockets around the Park transition;
+Run the existing watcher before the Park transition:
+
+```powershell
+.\scripts\watch.ps1 -ProcessName NBA2K17
+```
+
+It records outbound TCP peers and local UDP endpoints. Windows does not expose UDP remote peers through the ordinary UDP endpoint table, so a UDP socket is evidence of transport activity only.
+
+Summarize its JSONL output:
+
+```
+npm run summarize:network -- logs/attribution.<runId>.jsonl
+```
+
+Look for:
+
+- new TCP remote ports/address classes around the Park transition;
+- new UDP local sockets;
 - relay-related log/state events;
 - relay candidate enumeration;
 - ping/selection activity.
 
-If no relay activity is initiated, H4 may actually depend on H2/H3 first.
+If no relay activity is initiated, H4 may depend on H2/H3 first.
 
-If relay activity clearly starts and stalls on a missing local service, that becomes the next minimal implementation target.
+If transport activity clearly starts and stalls on a missing local service, that becomes the next minimal implementation target.
 
 ## Route telemetry
 
