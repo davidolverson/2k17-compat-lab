@@ -2,7 +2,8 @@ param(
   [string]$Config = "server\parallel-reconstruction.local.json",
   [string]$ArtifactPath = "",
   [switch]$SkipTests,
-  [switch]$Smoke
+  [switch]$Smoke,
+  [switch]$AutoDiscover
 )
 
 $ErrorActionPreference = "Stop"
@@ -53,6 +54,41 @@ if (-not (Test-Path $configPath)) {
 }
 
 $configObject = Get-Content $configPath -Raw | ConvertFrom-Json
+
+if ($AutoDiscover) {
+  $discoveryRelative = "experiment-state\local-evidence-discovery.json"
+  $discoveryScript = Join-Path $PSScriptRoot "discover-local-evidence.ps1"
+
+  Write-Host "[parallel] Running read-only local evidence discovery..."
+  & $discoveryScript -OutputPath $discoveryRelative
+
+  $discoveryPath = Join-Path $repoRoot $discoveryRelative
+  if (Test-Path $discoveryPath) {
+    $discovery = Get-Content $discoveryPath -Raw | ConvertFrom-Json
+
+    if ($discovery.clientInstalled) {
+      $installedClient = @($discovery.clients | Where-Object { $_.exists } | Select-Object -First 1)
+      if ($installedClient.Count -gt 0) {
+        Write-Host ("[parallel] NBA 2K17 client found: " + $installedClient[0].path)
+      }
+    } else {
+      Write-Host "[parallel] NBA 2K17 client not found in discovered Steam roots."
+    }
+
+    if (-not $ArtifactPath) {
+      $syncCandidates = @($discovery.syncBinCandidates)
+      if ($syncCandidates.Count -eq 1) {
+        $ArtifactPath = [string]$syncCandidates[0].path
+        Write-Host ("[parallel] Auto-selected single SYNC.BIN candidate: " + $ArtifactPath)
+      } elseif ($syncCandidates.Count -gt 1) {
+        Write-Host ("[parallel] Found " + $syncCandidates.Count + " SYNC.BIN candidates; none auto-selected.")
+        Write-Host "[parallel] Re-run with -ArtifactPath to choose one explicitly."
+      } else {
+        Write-Host "[parallel] No SYNC.BIN candidate found."
+      }
+    }
+  }
+}
 
 if ($ArtifactPath) {
   $resolvedArtifact = (Resolve-Path $ArtifactPath).Path
