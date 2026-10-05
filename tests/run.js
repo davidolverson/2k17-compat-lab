@@ -223,6 +223,10 @@ require('./probe-summary.test')({ test, assert });
 require('./park-experiment.test')({ test, assert });
 require('./probe-diff.test')({ test, assert });
 require('./persistence.test')({ test, assert });
+require('./steam-lobby.test')({ test, assert });
+require('./user-content-return.test')({ test, assert });
+require('./route-summary.test')({ test, assert });
+require('./granite-summary.test')({ test, assert });
 
 async function main() {
   let passed = 0;
