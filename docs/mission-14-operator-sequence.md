@@ -70,7 +70,8 @@ In parallel with H3, observe without implementing a new relay.
 Run the existing watcher before the Park transition:
 
 ```powershell
-.\scripts\watch.ps1 -ProcessName NBA2K17
+$stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+.\scripts\watch.ps1 -ProcessName NBA2K17 -OutputPath "logs\park-h4-$stamp.jsonl"
 ```
 
 It records outbound TCP peers and local UDP endpoints. Windows does not expose UDP remote peers through the ordinary UDP endpoint table, so a UDP socket is evidence of transport activity only.
@@ -78,7 +79,7 @@ It records outbound TCP peers and local UDP endpoints. Windows does not expose U
 Summarize its JSONL output:
 
 ```
-npm run summarize:network -- logs/attribution.<runId>.jsonl
+npm run summarize:network -- "logs/park-h4-<timestamp>.jsonl"
 ```
 
 Look for:
