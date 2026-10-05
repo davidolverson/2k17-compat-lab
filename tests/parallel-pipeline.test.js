@@ -4,6 +4,7 @@ const {
   compareStructureReports,
 } = require('../server/src/artifact/compare-structure');
 const {
+  parseJsonFile,
   isLoopbackHost,
   normalizeConfig,
 } = require('../scripts/run-parallel-reconstruction');
@@ -110,6 +111,31 @@ module.exports = function registerParallelPipelineTests({ test, assert }) {
       () => normalizeConfig({ udp: { host: '192.0.2.1' } }),
       /loopback-only/,
     );
+  });
+
+  test('parallel config reader tolerates UTF-8 BOM written by PowerShell', () => {
+    const fs = require('node:fs');
+    const os = require('node:os');
+    const path = require('node:path');
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), '2k17-bom-config-'));
+
+    try {
+      const file = path.join(root, 'config.json');
+      fs.writeFileSync(
+        file,
+        '\ufeff' + JSON.stringify({
+          websocket: { host: '127.0.0.1', port: 0 },
+          udp: { host: '127.0.0.1', port: 0, family: 'udp4' },
+        }),
+        'utf8',
+      );
+
+      const parsed = parseJsonFile(file);
+      assert.equal(parsed.websocket.host, '127.0.0.1');
+      assert.equal(parsed.udp.family, 'udp4');
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
   });
 
 };
