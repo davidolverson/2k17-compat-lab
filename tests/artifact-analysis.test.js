@@ -118,4 +118,30 @@ module.exports = function registerArtifactAnalysisTests({ test, assert }) {
       fs.rmSync(root, { recursive: true, force: true });
     }
   });
+  test('large artifact analysis bounds speculative reference scanning', () => {
+    const root = fs.mkdtempSync(
+      path.join(os.tmpdir(), '2k17-reference-budget-test-'),
+    );
+
+    try {
+      const file = path.join(root, 'large.bin');
+      fs.writeFileSync(file, Buffer.alloc(2 * 1024 * 1024, 0x41));
+
+      const report = analyzeFile(file, {
+        chunkSize: 256 * 1024,
+        windowSize: 64 * 1024,
+        referenceScanBudgetBytes: 512 * 1024,
+      });
+
+      assert.equal(report.referenceBytesScanned, 512 * 1024);
+      assert.equal(
+        report.referenceScanMode,
+        'BOUNDED_CROSS_VERSION_REFERENCE_SCAN',
+      );
+      assert.deepEqual(report.claimsPromoted, []);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
 };
