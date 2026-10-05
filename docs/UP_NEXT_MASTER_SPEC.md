@@ -2,7 +2,7 @@
 
 **Status:** LOCKED DESIGN / ACTIVE IMPLEMENTATION  
 **Primary compatibility milestone:** M001 — Online Foundation  
-**Current technical unknown:** UDP relay session / handshake after an evidenced successful Park search response  
+**Current status, frontier and blockers:** [`project-state.json`](../project-state.json) (the only place they are stated)  
 **Scope:** clean-room compatibility research + future Up Next replacement platform  
 **Rule:** unknown is valid; guessed protocol behavior is not.
 
@@ -97,6 +97,8 @@ Owns:
 - match lifecycle;
 - authoritative session infrastructure.
 
+Provenance boundary: the replacement runtime used for research is adapted from third-party code under a noncommercial licence and is not clean-room. It is research and reference infrastructure only and must not become the distributable `upnext-runtime` by default. A distributable `upnext-runtime` is either an independent, original implementation written from this repository's sanitized contracts and evidence, or it uses only code whose licence or written permission covers the intended release. Restricted or reference implementation code is never copied across that boundary. See `docs/license-decision.md`.
+
 ### 3.3 upnext
 
 Future/independent repository.
@@ -175,27 +177,20 @@ M001 closes only when all are true:
 11. classification mismatches are zero;
 12. current-state documentation is updated from evidence, not memory.
 
-### Current evidenced chain
+### Current frontier
 
-The project currently has evidence for:
+This specification does not record where the research currently stands. The evidenced chain, the active research question, the status of each condition above and the open blockers live only in [`project-state.json`](../project-state.json), which is changed from evidence and checked in CI. A statement of current progress anywhere else, including here, is out of date by definition.
 
-```text
-ParkRep
-  -> mmg/park/search
-  -> successful search response with relay information
-  -> client attempts UDP relay session
-  -> relay session lasts roughly ten seconds
-  -> disconnect
-  -> next dependency unknown
-```
+Two rules about the frontier are permanent and stay here:
 
-This proves a relay dependency in the observed flow. It does **not** prove the original service used the same address/value or that the relay handshake is understood.
+- A dependency the client was observed to use (for example a relay address it honoured) proves the client's behavior. It does **not** prove the original service used the same address, value or handshake.
+- No World/connect, park/create, relay packet class, or handshake field may be invented because another title/version used it.
 
-The immediate M001 research question is:
+### Evidence eligibility
 
-> What does the compatible client send/expect during the evidenced UDP relay session, and what observable condition causes termination?
-
-No World/connect, park/create, relay packet class, or handshake field may be invented because another title/version used it.
+- "Known-compatible client" in the conditions above means a legitimately supplied, unmodified client. Results from any other installation are discovery only: they may guide offline analysis, and they may not become FACT, close a milestone or establish production compatibility.
+- A result reported by a live session stays REPORTED_UNPROVEN until it is tied to an exact committed runtime source state, client and configuration through an experiment manifest.
+- The second independent client is a hard requirement of M001 and is not waived by progress elsewhere.
 
 ---
 
@@ -1109,12 +1104,11 @@ Architecture is locked when future unknowns can be resolved inside these boundar
 
 Protocol values are **not** locked until evidence proves them.
 
-Current status:
+What is locked:
 
 - product vision: LOCKED;
 - trust/security model: LOCKED;
 - platform architecture: LOCKED;
-- M001 research methodology: LOCKED;
-- M001 implementation: ACTIVE;
-- current blocker: UDP RELAY SESSION/HANDSHAKE;
-- public beta: NOT READY.
+- M001 research methodology: LOCKED.
+
+What is not stated here: milestone progress, the current blocker and release readiness. Those change, so they live only in [`project-state.json`](../project-state.json).

@@ -64,6 +64,14 @@ function ValidateDocuments(State, Read) {
     if (Readme !== null && /^\s*Current state:/im.test(Readme)) Problems.push('README.md restates status ("Current state:"); status belongs in project-state.json');
     const Live = Read('docs/live-status.md');
     if (Live !== null && !Live.includes('project-state.json')) Problems.push('docs/live-status.md must point to project-state.json');
+    // Contract documents are locked text. They link to the state file and never
+    // carry a blocker or frontier of their own, because that is what goes stale.
+    for (const File of ['docs/UP_NEXT_MASTER_SPEC.md', 'docs/CLAUDE_AUTONOMOUS_EXECUTION.md']) {
+        const Text = Read(File);
+        if (Text === null) continue;
+        if (!Text.includes('project-state.json')) Problems.push(`${File} must reference project-state.json`);
+        if (/current (technical )?(blocker|unknown)\s*[:=]/i.test(Text) || /^#+\s*Current evidenced chain/im.test(Text)) Problems.push(`${File} states a current blocker or frontier; that belongs only in project-state.json`);
+    }
     const Milestone = Read('docs/milestone-001-online.md');
     const Declared = Milestone === null ? null : /^Status:\s*\*\*([A-Z_]+)\*\*/m.exec(Milestone)?.[1] ?? null;
     if (State?.milestone?.id === 'M001' && Declared !== null && Declared !== State.milestone.status) {

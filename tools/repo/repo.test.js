@@ -183,4 +183,10 @@ Test('state: documents must point at the state file and not restate status', () 
     Assert.match(State.ValidateDocuments(Good(), Read({ ...Clean, 'README.md': 'Current state: **BLOCKED**' })).join(' | '), /must reference project-state.json.*restates status/);
     Assert.match(State.ValidateDocuments(Good(), Read({ ...Clean, 'docs/live-status.md': '# Live Status' })).join(), /must point to project-state.json/);
     Assert.match(State.ValidateDocuments(Good(), Read({ ...Clean, 'docs/milestone-001-online.md': 'Status: **COMPLETE**' })).join(), /says COMPLETE, project-state.json says ACTIVE/);
+    const Spec = 'docs/UP_NEXT_MASTER_SPEC.md';
+    Assert.deepEqual(State.ValidateDocuments(Good(), Read({ ...Clean, [Spec]: 'status: see project-state.json' })), []);
+    Assert.match(State.ValidateDocuments(Good(), Read({ ...Clean, [Spec]: 'locked' })).join(), /must reference project-state.json/);
+    for (const Stale of ['- current blocker: UDP RELAY SESSION/HANDSHAKE;', '**Current technical unknown:** relay', '### Current evidenced chain']) {
+        Assert.match(State.ValidateDocuments(Good(), Read({ ...Clean, [Spec]: `see project-state.json\n${Stale}` })).join(), /states a current blocker or frontier/, Stale);
+    }
 });
