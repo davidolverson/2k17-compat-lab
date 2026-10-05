@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://checkup.gg/schemas/2k17-compat-lab/evidence-candidate-v1.schema.json",
+  "title": "2k17-compat-lab evidence candidate v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "candidateId",
+    "candidateDigestSha256",
+    "captureId",
+    "source",
+    "candidateClass",
+    "promotionStatus",
+    "promotedEvidenceClass",
+    "summary",
+    "reviewRules"
+  ],
+  "properties": {
+    "schema": {
+      "const": "2k17-compat-lab.evidence-candidate.v1"
+    },
+    "candidateId": {
+      "type": "string",
+      "pattern": "^CAND-[0-9A-F]{20}$"
+    },
+    "candidateDigestSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "captureId": {
+      "type": "string"
+    },
+    "source": {
+      "type": "object"
+    },
+    "candidateClass": {
+      "enum": [
+        "OBSERVED_2K17_CANDIDATE",
+        "INSTRUMENT_SELFTEST",
+        "SYNTHETIC_TEST",
+        "UNVERIFIED"
+      ]
+    },
+    "promotionStatus": {
+      "const": "REVIEW_REQUIRED"
+    },
+    "promotedEvidenceClass": {
+      "type": "null"
+    },
+    "summary": {
+      "type": "object"
+    },
+    "reviewRules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    }
+  }
+}
