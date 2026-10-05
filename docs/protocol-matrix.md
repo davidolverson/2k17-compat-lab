@@ -78,9 +78,10 @@ Nothing in the `2K19 reference` column is automatically an NBA 2K17 fact.
 | Park / world bootstrap | Revival first-party status material separates Park servers from its API and game-server layer, and public/community evidence shows restored Park access. This demonstrates a separate Park infrastructure layer in a working replacement project, not the exact original 2K17 bootstrap contract. | Revival first-party status/release pages; community reports | `PUBLIC_2K17_SOURCE` for replacement architecture/feature existence | HIGH for Revival's own architecture claim; original wire contract UNKNOWN | Granite splits web services from an Opal world layer. | Architecture placeholder is justified; exact bootstrap messages remain UNKNOWN. |
 | Park realtime transport | A Plutonium administrator reported that 2K17 used WebSockets and UDP for game traffic, with WebSockets appearing to handle neighborhood/Park behavior and UDP the actual match; the packet structures looked different. | Plutonium 2K17 investigation notes | `PUBLIC_2K17_SOURCE` | MEDIUM | Granite 2K19 independently uses a split world/game realtime architecture. | Architecture can reserve separate WebSocket/world and UDP/match layers, but exact endpoints, ports and packet formats remain UNKNOWN. |
 | Matchmaking/session assignment | Exact original 2K17 wire contract is unknown. Revival's first-party status page separately identifies game servers handling login, matchmaking and the game wire, demonstrating that a working replacement project treats this as a distinct service layer. | Revival first-party status page; restored Park functionality | `PUBLIC_2K17_SOURCE` for replacement architecture; original wire contract `UNKNOWN` | MEDIUM | Granite has matchmaking/game-session services. | Reserve a separate matchmaking/session layer; do not copy route/schema assumptions. |
-| HTTP-delivered cache/content | A Plutonium administrator reported that 2K17 caches some files obtained from its HTTP API on disk, possibly updated lists or small patch/content files. Exact filenames, paths and schemas were not published. | Plutonium 2K17 investigation notes | `PUBLIC_2K17_SOURCE` | LOW–MEDIUM | Granite implements CDN/content-message services. | Add cache/file observation to future authorized-client checklist; wire contract remains UNKNOWN. |
+| HTTP-delivered cache/content | A Plutonium administrator reported that 2K17 caches some files obtained from its HTTP API on disk. Mission 7 found multiple historical PC sources identifying `SYNC.BIN` under `Steam/userdata/<id>/385760/local`, server-backed redownload/update behavior, and separate `remote` roster files. This makes `SYNC.BIN` the strongest historical cache-artifact candidate, but does not prove it is a raw HTTP response or establish its container format. | Plutonium 2K17 investigation notes; 2016 Steam discussions; historical modding archives | `PUBLIC_2K17_SOURCE` | MEDIUM–HIGH for artifact existence/role; mapping to HTTP API remains HYPOTHESIS | Granite implements CDN/content-message services. | Track `SYNC.BIN` metadata/hashes from legitimately sourced historical artifacts; do not commit blob contents. |
 | Client helper process owns traffic | No authorized 2K17 evidence. Existing GTA V instrumentation proved only that commercial games may delegate network traffic to helpers. | own GTA V instrumentation history | `INFERRED` as instrumentation risk, not 2K17 behavior | LOW | n/a | Attribution must remain install-root/path based, not name-only. |
 | IPv6 use | No authorized 2K17 evidence. Existing GTA V test demonstrated IPv6 can invalidate IPv4-only instrumentation. | own GTA V instrumentation history | `INFERRED` as instrumentation risk, not 2K17 behavior | LOW | n/a | Keep dual-family instrumentation. |
+| Historical cache artifact: `SYNC.BIN` | Contemporary Steam reports place `SYNC.BIN` at `Steam/userdata/<id>/385760/local`, say it is written near startup, and historical modding sources associate it with official update/default content. One report estimates roughly 900 MB, but size is not canonical. | 2016 Steam support thread; NLSC/ModdingWay/ALI213 historical modding sources | `PUBLIC_2K17_SOURCE` | MEDIUM–HIGH | Later 2K titles also use sync/default-content mechanisms, but no cross-version format is assumed. | Metadata-only artifact collector added; internal format remains UNKNOWN. |
 | Official shutdown | NBA 2K17 online services were announced shut down effective 2018-12-31. | Steam/app metadata recorded in project research | `PUBLIC_2K17_SOURCE` | HIGH | n/a | Background fact; not a protocol detail. |
 
 ---
@@ -233,6 +234,31 @@ Useful for:
 - separation of web services and realtime world services.
 
 Not usable as direct proof of NBA 2K17 constants, endpoints, field IDs, or service-table entries.
+
+---
+
+## Mission 7 archival-cache delta
+
+Mission 7 found a concrete historical cache artifact family centered on `SYNC.BIN`.
+
+Newly supported public facts:
+
+- `SYNC.BIN` is repeatedly placed under `Steam/userdata/<id>/385760/local`.
+- contemporary users report it being created/written around startup before menus;
+- server-backed recovery/redownload behavior exists for files in the 385760 user-data area;
+- historical roster/update documentation distinguishes `SYNC.BIN` in `local` from roster files such as `Roster0001` and `RosterDescriptions` in `remote`;
+- modding sources show `SYNC.BIN` influences default/content data consumed by the client.
+
+Still unknown:
+
+- internal `SYNC.BIN` container format;
+- whether `SYNC.BIN` directly embeds HTTP API responses;
+- compression/archive framing;
+- exact version manifest;
+- whether one or multiple service responses feed the file;
+- canonical file size/hash for any specific official update.
+
+The project therefore treats `SYNC.BIN` as the highest-value historical cache-artifact candidate, not as a decoded protocol fixture.
 
 ---
 
