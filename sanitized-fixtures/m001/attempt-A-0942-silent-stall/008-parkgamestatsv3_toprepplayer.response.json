@@ -1,0 +1,24 @@
+{
+  "schema_version": 0,
+  "kind": "sanitized-response",
+  "source": "replacement-runtime (NOT an original-service capture)",
+  "path": "/nba/2k17/ParkGameStatsV3/TopRepPlayer",
+  "route": "parkgamestatsv3/toprepplayer",
+  "captured_at": "2026-10-05T09:42:08.953Z",
+  "body_bytes": 32,
+  "declared_fieldlist_bytes": 32,
+  "parse_status": "ok",
+  "fields": [
+    {
+      "index": 0,
+      "crc": "0xE3920695",
+      "name": "RESULT",
+      "type": "0x1423ADD2",
+      "type_name": "StringCrc",
+      "value": "0x504521A8",
+      "value_name": "SUCCESS"
+    }
+  ],
+  "data_bytes": 0,
+  "trailing_bytes": 0
+}

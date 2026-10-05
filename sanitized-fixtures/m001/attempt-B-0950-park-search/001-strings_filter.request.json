@@ -1,0 +1,41 @@
+{
+  "schema_version": 0,
+  "kind": "sanitized-request",
+  "title": "nba2k17-pc",
+  "method": "POST",
+  "path": "/nba/2k17/Strings/filter",
+  "route": "strings/filter",
+  "captured_at": "2026-10-05T09:50:19.854Z",
+  "headers": {
+    "user-agent": "VISUAL_CONCEPTS_WIN64/17.0",
+    "content-type": "application/octet-stream",
+    "vcfieldlist_size": "72",
+    "content-length": "72"
+  },
+  "body_bytes": 72,
+  "declared_fieldlist_bytes": 72,
+  "parse_status": "ok",
+  "fields": [
+    {
+      "index": 0,
+      "crc": "0x6E46752F",
+      "name": "STRING",
+      "type": "0x6E46752F",
+      "type_name": "String8",
+      "value": null,
+      "redacted": "opaque",
+      "bytes": 1
+    },
+    {
+      "index": 1,
+      "crc": "0x6E46752F",
+      "name": "STRING",
+      "type": "0x6E46752F",
+      "type_name": "String8",
+      "value": null,
+      "redacted": "repeats-identity-value"
+    }
+  ],
+  "data_bytes": 24,
+  "trailing_bytes": 0
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 0,
+  "kind": "sanitized-request",
+  "title": "nba2k17-pc",
+  "method": "POST",
+  "path": "/nba/2k17/VCReport/batch",
+  "route": "vcreport/batch",
+  "captured_at": "2026-10-05T09:42:07.522Z",
+  "headers": {
+    "user-agent": "VISUAL_CONCEPTS_WIN64/17.0",
+    "content-type": "application/octet-stream",
+    "vcfieldlist_size": "64",
+    "content-length": "768"
+  },
+  "body_bytes": 768,
+  "declared_fieldlist_bytes": 64,
+  "parse_status": "ok",
+  "fields": [
+    {
+      "index": 0,
+      "crc": "0x53D25BE9",
+      "name": "EXTRA_DATA_SIZE",
+      "type": "0x3D9E5089",
+      "type_name": "U64",
+      "value": "704"
+    },
+    {
+      "index": 1,
+      "crc": "0x5F796883",
+      "name": null,
+      "type": "0x55C05A86",
+      "type_name": "VCDate",
+      "value": "2026-10-05T09:41:37.509Z",
+      "value_hex": "0x0000C16949C3D465"
+    },
+    {
+      "index": 2,
+      "crc": "0x83AE0876",
+      "name": null,
+      "type": "0x55C05A86",
+      "type_name": "VCDate",
+      "value": "2026-10-05T09:42:07.500Z",
+      "value_hex": "0x0000C16949C4498C"
+    }
+  ],
+  "data_bytes": 0,
+  "trailing_bytes": 704
+}

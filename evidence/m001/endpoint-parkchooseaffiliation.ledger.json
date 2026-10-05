@@ -1,0 +1,64 @@
+{
+  "schema_version": 0,
+  "kind": "park-dependency-ledger",
+  "label": "endpoint-parkchooseaffiliation",
+  "generated_by": "tools/m001/park-ledger.js",
+  "title": "nba2k17-pc",
+  "environment": "replacement",
+  "window": {
+    "start_basis": "operator-supplied sequence range 13..13",
+    "attempt": null,
+    "attempts_in_session": null,
+    "first_request_at": "2026-10-05T08:10:13.272Z",
+    "last_request_at": "2026-10-05T08:10:13.272Z",
+    "last_park_call_order": 1,
+    "session_requests_total": 15,
+    "client_stage_note": "client_stage is null on every row: no client-side stage signal is captured by the server. Loading-percentage observations belong in docs with their own source, not in this ledger."
+  },
+  "summary": {
+    "requests": 1,
+    "by_response_class": {
+      "intentional": 1
+    },
+    "by_evidence_class": {
+      "HYPOTHESIS": 1
+    },
+    "bare_ack_responses": 1,
+    "classification_mismatches": 1,
+    "distinct_routes_not_intentionally_evidenced": [
+      "parkgamestatsv3/parkchooseaffiliation"
+    ]
+  },
+  "rule": "HTTP 200 does not mean implemented. A row is only trustworthy when response_class is intentional AND evidence_class is OBSERVED or DERIVED.",
+  "entries": [
+    {
+      "order": 1,
+      "timestamp": "2026-10-05T08:10:13.272Z",
+      "offset_ms": 0,
+      "method": "POST",
+      "route": "/nba/2k17/ParkGameStatsV3/ParkChooseAffiliation",
+      "route_key": "parkgamestatsv3/parkchooseaffiliation",
+      "session_ref": "S1",
+      "request_bytes": 32,
+      "request_field_count": 1,
+      "request_fixture": "sanitized-fixtures/m001/endpoint-parkchooseaffiliation/001-parkgamestatsv3_parkchooseaffiliation.request.json",
+      "handler": "Park2K17.Build (Summary)",
+      "handler_source": "local-2k17-experiment",
+      "handler_confirmed_by_log": [
+        "catch-all"
+      ],
+      "response_bytes": 32,
+      "response_shape": [
+        "0xE3920695:StringCrc"
+      ],
+      "response_bare_ack": true,
+      "response_fixture": "sanitized-fixtures/m001/endpoint-parkchooseaffiliation/001-parkgamestatsv3_parkchooseaffiliation.response.json",
+      "response_class": "intentional",
+      "evidence_class": "HYPOTHESIS",
+      "experimental": true,
+      "client_stage": null,
+      "position": "through-last-park-call",
+      "notes": "EXPERIMENTAL reply. Field NAMES are strings resident in the 2K17 client; the reply SHAPE and every value are invented. Not a protocol fact. Response is a bare RESULT=SUCCESS (no data fields). CLASSIFICATION_MISMATCH: server log shows the catch-all handled this request."
+    }
+  ]
+}

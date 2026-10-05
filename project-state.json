@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "kind": "project-state",
+  "about": "Single machine-readable source of truth for project status. README and docs point here and do not restate status. Statuses: MET needs committed evidence tied to an experiment manifest; REPORTED_UNPROVEN was reported by a live session and has no manifest; NOT_MET has no qualifying evidence. Change this file only from evidence, in the same commit as the evidence or the reconciliation note that justifies it.",
+  "updated_at_utc": "2026-10-05T16:51:40Z",
+  "updated_from": "docs/truth-reconciliation-2026-10-05.md",
+  "milestone": {
+    "id": "M001",
+    "name": "Online Foundation",
+    "status": "ACTIVE",
+    "contract": [
+      "docs/UP_NEXT_MASTER_SPEC.md",
+      "docs/milestone-001-online.md"
+    ]
+  },
+  "acceptance": [
+    {
+      "id": 1,
+      "condition": "known-compatible client establishes and maintains a replacement-service session",
+      "status": "REPORTED_UNPROVEN",
+      "evidence": [
+        "docs/m001-park-audit.md"
+      ],
+      "note": "Session held across keep-alives in captures; structural smoke regression passes. No experiment manifest, and the client used does not qualify (blocker B1)."
+    },
+    {
+      "id": 2,
+      "condition": "client enters interactive Park/world state",
+      "status": "REPORTED_UNPROVEN",
+      "evidence": [],
+      "note": "Reported in issue #1 against runtime commit da885da18d16767c44991ebb91045866d67716ec with an experimental solo-host relay echo. No sanitized evidence and no manifest are committed here."
+    },
+    {
+      "id": 3,
+      "condition": "result reproduces after clean replacement-service restart",
+      "status": "NOT_MET",
+      "evidence": [],
+      "note": "No recorded restart reproduction of Park entry."
+    },
+    {
+      "id": 4,
+      "condition": "second independent client reaches the same interactive state",
+      "status": "NOT_MET",
+      "evidence": [],
+      "note": "Never attempted. Synthetic two-participant relay tests exist in the runtime and are not client evidence."
+    },
+    {
+      "id": 5,
+      "condition": "two clients receive distinct internal player IDs and session IDs",
+      "status": "NOT_MET",
+      "evidence": [],
+      "note": "Depends on condition 4."
+    },
+    {
+      "id": 6,
+      "condition": "no critical successful path depends on generic fallback",
+      "status": "NOT_MET",
+      "evidence": [
+        "tools/m001/route-classification.json"
+      ],
+      "note": "TopRepPlayer, ParkSummary and ParkRep are classified generic-fallback; smoke regression reports all three as acceptance advisories."
+    },
+    {
+      "id": 7,
+      "condition": "required behavior is tied to an exact committed runtime source state",
+      "status": "NOT_MET",
+      "evidence": [],
+      "note": "The live server and relay processes were started before the commits now at the runtime HEAD (blocker B3)."
+    },
+    {
+      "id": 8,
+      "condition": "explicit experiment manifest identifies client hash/config/source commits",
+      "status": "NOT_MET",
+      "evidence": [],
+      "note": "No experiment manifest exists yet. Schema and validator: tools/m001/gate.js; template: evidence/manifests/TEMPLATE.md."
+    },
+    {
+      "id": 9,
+      "condition": "sanitized evidence is committed",
+      "status": "NOT_MET",
+      "evidence": [
+        "evidence/m001",
+        "sanitized-fixtures/m001"
+      ],
+      "note": "Committed evidence ends at the relay dependency (commit 1a8d4a8e14c8d7b3ac223ad17b32c15b52e6aa90). Nothing is committed for Park entry or later."
+    },
+    {
+      "id": 10,
+      "condition": "acceptance suite passes with zero skips",
+      "status": "NOT_MET",
+      "evidence": [
+        "tools/m001/regress.js"
+      ],
+      "note": "Acceptance mode exists and fails closed. It has never passed."
+    },
+    {
+      "id": 11,
+      "condition": "classification mismatches are zero",
+      "status": "NOT_MET",
+      "evidence": [],
+      "note": "Zero in the committed ledgers, which predate the accepted path. Not yet measured on a qualifying run."
+    },
+    {
+      "id": 12,
+      "condition": "current-state documentation is updated from evidence, not memory",
+      "status": "NOT_MET",
+      "evidence": [
+        "docs/truth-reconciliation-2026-10-05.md"
+      ],
+      "note": "Status is stated only in this file; the Master Spec and execution contract now link here and CI fails if they restate a frontier. The condition itself stays NOT_MET until the closeout documentation is written from committed evidence."
+    }
+  ],
+  "frontier": {
+    "summary": "Acceptance-grade live experimentation is paused on B1 and B3. Everything reported by the live lane after the relay dependency stays REPORTED_UNPROVEN. Offline analysis of already captured sanitized evidence, repository governance and clean-room runtime planning continue.",
+    "reported_unproven": [
+      "The ten-second relay termination is client-driven: the client sends an explicit leave when no datagram reaches it.",
+      "A solo-host echo keeps the session alive; it is an experiment flag, not a protocol fact.",
+      "A non-zero RELAY_REGION in the accepted search reply preceded Park entry.",
+      "A Got Next spot is claimed and released through park/interlockedupdate."
+    ],
+    "unknown": [
+      "What the original service sent in any Park or relay reply.",
+      "Meaning of every relay datagram beyond the structural header; all remain UNKNOWN_*.",
+      "Behaviour with a second real participant, court start, and the stale-version conflict path.",
+      "Whether World/connect or park/create exist for this client: neither has been observed."
+    ]
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "decided_at_utc": "2026-10-05T16:44:59Z",
+      "source": "PR #2 comment by the repository owner",
+      "decision": "Results from the current emulator-modified client installation are discovery only. They may not become FACT, close M001 or establish production compatibility. Offline analysis of its already captured sanitized evidence is allowed. Acceptance needs a legitimately supplied compatible client and attributable clean runtime source."
+    },
+    {
+      "id": "D2",
+      "decided_at_utc": "2026-10-05T16:44:59Z",
+      "source": "PR #2 comment by the repository owner",
+      "decision": "Git history is not rewritten unless a full-history scan finds real credentials, keys, raw platform ids or session material. The scan of 2026-10-05 found only the known classes, so history is left intact."
+    },
+    {
+      "id": "D3",
+      "decided_at_utc": "2026-10-05T16:44:59Z",
+      "source": "PR #2 comment by the repository owner",
+      "decision": "main is protected with required CI checks, no force-push and no deletion; no second-reviewer requirement while the repository has one maintainer. Private vulnerability reporting is enabled."
+    },
+    {
+      "id": "D4",
+      "decided_at_utc": "2026-10-05T16:45:39Z",
+      "source": "PR #2 comment by the repository owner",
+      "decision": "The Master Spec states architecture and policy only. This file is the sole source for the current frontier and blockers."
+    },
+    {
+      "id": "D5",
+      "decided_at_utc": "2026-10-05T16:45:39Z",
+      "source": "PR #2 comment by the repository owner",
+      "decision": "The current noncommercial, non-clean-room replacement runtime is research and reference infrastructure only. A distributable upnext-runtime is either independently written from sanitized contracts and evidence or uses only code whose licence or permission covers the release. No restricted or reference code crosses that boundary."
+    },
+    {
+      "id": "D6",
+      "decided_at_utc": "2026-10-05T16:45:39Z",
+      "source": "PR #2 comment by the repository owner",
+      "decision": "The reported solo-host and client-leave behaviour stays REPORTED_UNPROVEN until tied to exact committed runtime, client and configuration provenance. The second independent client remains a hard M001 requirement."
+    }
+  ],
+  "blockers": [
+    {
+      "id": "B1",
+      "title": "Client used for live experiments does not qualify as licensed-unmodified",
+      "class": "SECURITY_BOUNDARY",
+      "owner": "human",
+      "detail": "Decision D1. The client installation used for live experiments is emulator-modified, so every result from it is discovery only. Acceptance-grade live protocol experimentation is paused until a legitimately supplied, unmodified compatible client is in place. Offline analysis of already captured sanitized evidence may continue."
+    },
+    {
+      "id": "B2",
+      "title": "Second independent client",
+      "class": "PREREQUISITE",
+      "owner": "human",
+      "detail": "Conditions 4 and 5 need a second machine with its own qualifying install and a distinct identity."
+    },
+    {
+      "id": "B3",
+      "title": "Live runtime is not attributable to a commit",
+      "class": "PROVENANCE",
+      "owner": "live-lane",
+      "detail": "Restart the server and relay from a clean checkout of a recorded commit before any run that is meant to be evidence."
+    },
+    {
+      "id": "B5",
+      "title": "No distributable runtime exists; the research runtime cannot become one",
+      "class": "LEGAL",
+      "owner": "human",
+      "detail": "Decision D5 settles the boundary: the current runtime is research and reference infrastructure only. Still open: a plan for an independent clean-room upnext-runtime written from sanitized contracts and evidence, or a licence or permission that covers release. See docs/license-decision.md."
+    },
+    {
+      "id": "B7",
+      "title": "No project licence chosen",
+      "class": "LEGAL",
+      "owner": "human",
+      "detail": "Deliberately left undecided. See docs/license-decision.md."
+    }
+  ],
+  "resolved_blockers": [
+    {
+      "id": "B4",
+      "resolved_at_utc": "2026-10-05T16:51:40Z",
+      "resolution": "Decision D4. Volatile frontier and blocker text removed from the Master Spec and the execution contract; both link to this file, enforced by tools/repo/check-state.js."
+    },
+    {
+      "id": "B6",
+      "resolved_at_utc": "2026-10-05T16:51:40Z",
+      "resolution": "Decision D2. Full-history scan (tools/repo/scan-history.js) over 230 commits and 382 blobs found only the known account/persona metadata and truncated non-secret digests, plus one synthetic test value. History left intact. Record: docs/privacy-history-cleanup-plan.md."
+    }
+  ],
+  "evidence_base": {
+    "newest_committed_evidence_commit": "1a8d4a8e14c8d7b3ac223ad17b32c15b52e6aa90",
+    "runtime_repo": "granite-2k17 (private)",
+    "runtime_head_at_reconciliation": "dbdf3650bb2a87b13da86f90cd6eb7b698f254b7",
+    "experiment_manifests": 0
+  },
+  "tracks": {
+    "A_compatibility": "PAUSED for acceptance-grade live work (B1, B3); offline analysis of sanitized evidence allowed; B2 still required",
+    "B_repository_hardening": "DONE: merged into work/m001-online-foundation; main protected; private vulnerability reporting on",
+    "C_product": "UNBLOCKED for governance, platform scaffolding and clean-room runtime planning; must not depend on research-runtime code (B5)"
+  }
+}

@@ -1,0 +1,354 @@
+{
+  "schema_version": 0,
+  "kind": "route-outcome-comparison",
+  "route_key": "park/search",
+  "generated_by": "tools/m001/search-outcomes.js",
+  "noise_routes_ignored_for_next_request": [
+    "session/update",
+    "vcreport/batch"
+  ],
+  "scope_note": "HTTP only. UDP/TCP activity outside the HTTPS service (for example a relay) is not visible in these captures and must be cited from its own log.",
+  "by_reply_kind": {
+    "SUCCESS/1": {
+      "runs": 1,
+      "search_requests": 2,
+      "next_non_noise_routes": {
+        "(none captured)": 1
+      }
+    },
+    "NOT_FOUND/2": {
+      "runs": 1,
+      "search_requests": 7,
+      "next_non_noise_routes": {
+        "(none captured)": 1
+      }
+    },
+    "SUCCESS/29": {
+      "runs": 2,
+      "search_requests": 2,
+      "next_non_noise_routes": {
+        "(none captured)": 2
+      }
+    },
+    "SUCCESS/30": {
+      "runs": 2,
+      "search_requests": 251,
+      "next_non_noise_routes": {
+        "park/leave": 1,
+        "(none captured)": 1
+      }
+    }
+  },
+  "runs": [
+    {
+      "run": 1,
+      "session_ref": "S1",
+      "server_run": "pid-42120",
+      "first_request_at": "2026-10-05T09:50:21.977Z",
+      "reply_kind": "SUCCESS/1",
+      "reply_bytes": [
+        32
+      ],
+      "reply_shape": [
+        "0xE3920695:StringCrc"
+      ],
+      "search_requests": 2,
+      "seconds_between_searches": [
+        13.78
+      ],
+      "other_requests_between_searches": {
+        "attributes/get": 2,
+        "virtualcurrency/get_consumable_info": 1,
+        "usercontent/upload": 1,
+        "strings/filter": 2,
+        "probe2k17/95c85943": 2,
+        "parkgamestatsv3/toprepplayer": 1,
+        "parkgamestatsv3/parksummary": 1,
+        "parkgamestatsv3/parkrep": 1
+      },
+      "next_non_noise_request": null,
+      "requests_after_last_search": []
+    },
+    {
+      "run": 2,
+      "session_ref": "S2",
+      "server_run": "pid-40048",
+      "first_request_at": "2026-10-05T09:54:32.237Z",
+      "reply_kind": "NOT_FOUND/2",
+      "reply_bytes": [
+        48
+      ],
+      "reply_shape": [
+        "0x0BB02C05:F32",
+        "0xE3920695:StringCrc"
+      ],
+      "search_requests": 7,
+      "seconds_between_searches": [
+        2.02,
+        4.02,
+        8.02,
+        16.02,
+        32.02,
+        64.02
+      ],
+      "other_requests_between_searches": {},
+      "next_non_noise_request": null,
+      "requests_after_last_search": []
+    },
+    {
+      "run": 3,
+      "session_ref": "S3",
+      "server_run": "pid-41484",
+      "first_request_at": "2026-10-05T09:58:11.319Z",
+      "reply_kind": "SUCCESS/29",
+      "reply_bytes": [
+        2607
+      ],
+      "reply_shape": [
+        "0xD4C0767A:U64",
+        "0x4A41DF5F:U64",
+        "0x1780EC1F:U64",
+        "0xC56500F9:U64",
+        "0x2A6ACAAD:StringCrc",
+        "0x87E5BC62:StringCrc",
+        "0x6CD5D4F9:Packed",
+        "0xAE6EEA84:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x92CD7D5B:U64",
+        "0x8C9EF2CF:U64",
+        "0x3A60FE52:U64",
+        "0x9AD3E8F7:Binary",
+        "0x61E5E2AC:U64",
+        "0x0BB02C05:F32",
+        "0xE3920695:StringCrc"
+      ],
+      "search_requests": 1,
+      "seconds_between_searches": [],
+      "other_requests_between_searches": {},
+      "next_non_noise_request": null,
+      "requests_after_last_search": [
+        {
+          "offset_s": 0.251,
+          "method": "POST",
+          "route_key": "vcreport/batch",
+          "noise": true,
+          "reply_kind": "SUCCESS/1"
+        }
+      ],
+      "fixture": "sanitized-fixtures/m001/park-search-success/run03-29-fields.response.json"
+    },
+    {
+      "run": 4,
+      "session_ref": "S4",
+      "server_run": "pid-41484",
+      "first_request_at": "2026-10-05T10:01:13.880Z",
+      "reply_kind": "SUCCESS/29",
+      "reply_bytes": [
+        2592
+      ],
+      "reply_shape": [
+        "0xD4C0767A:U64",
+        "0x4A41DF5F:U64",
+        "0x1780EC1F:U64",
+        "0xC56500F9:U64",
+        "0x2A6ACAAD:StringCrc",
+        "0x87E5BC62:StringCrc",
+        "0x6CD5D4F9:Packed",
+        "0xAE6EEA84:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x92CD7D5B:U64",
+        "0x8C9EF2CF:U64",
+        "0x3A60FE52:U64",
+        "0x9AD3E8F7:Binary",
+        "0x61E5E2AC:U64",
+        "0x0BB02C05:F32",
+        "0xE3920695:StringCrc"
+      ],
+      "search_requests": 1,
+      "seconds_between_searches": [],
+      "other_requests_between_searches": {},
+      "next_non_noise_request": null,
+      "requests_after_last_search": [
+        {
+          "offset_s": 0.127,
+          "method": "POST",
+          "route_key": "vcreport/batch",
+          "noise": true,
+          "reply_kind": "SUCCESS/1"
+        }
+      ]
+    },
+    {
+      "run": 5,
+      "session_ref": "S5",
+      "server_run": "pid-4188",
+      "first_request_at": "2026-10-05T10:04:43.177Z",
+      "reply_kind": "SUCCESS/30",
+      "reply_bytes": [
+        2664
+      ],
+      "reply_shape": [
+        "0xD4C0767A:U64",
+        "0x4A41DF5F:U64",
+        "0x1780EC1F:U64",
+        "0xC56500F9:U64",
+        "0x2A6ACAAD:StringCrc",
+        "0x87E5BC62:StringCrc",
+        "0x6CD5D4F9:Packed",
+        "0xAE6EEA84:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3FA02989:Binary",
+        "0x92CD7D5B:U64",
+        "0x8C9EF2CF:U64",
+        "0x3A60FE52:U64",
+        "0x9AD3E8F7:Binary",
+        "0x61E5E2AC:U64",
+        "0x0BB02C05:F32",
+        "0xE3920695:StringCrc"
+      ],
+      "search_requests": 249,
+      "seconds_between_searches": {
+        "count": 248,
+        "min": 0.02,
+        "max": 10.04,
+        "first_12": [
+          10.04,
+          10.04,
+          10.04,
+          5.03,
+          0.03,
+          0.03,
+          0.03,
+          0.03,
+          0.03,
+          0.03,
+          0.02,
+          0.03
+        ]
+      },
+      "other_requests_between_searches": {
+        "park/leave": 247
+      },
+      "next_non_noise_request": {
+        "offset_s": 0.006,
+        "method": "POST",
+        "route_key": "park/leave"
+      },
+      "requests_after_last_search": [
+        {
+          "offset_s": 0.006,
+          "method": "POST",
+          "route_key": "park/leave",
+          "noise": false,
+          "reply_kind": "SUCCESS/2"
+        },
+        {
+          "offset_s": 10.027,
+          "method": "POST",
+          "route_key": "vcreport/batch",
+          "noise": true,
+          "reply_kind": "SUCCESS/1"
+        }
+      ],
+      "fixture": "sanitized-fixtures/m001/park-search-success/run05-30-fields.response.json"
+    },
+    {
+      "run": 6,
+      "session_ref": "S6",
+      "server_run": "pid-4188",
+      "first_request_at": "2026-10-05T10:07:41.477Z",
+      "reply_kind": "SUCCESS/30",
+      "reply_bytes": [
+        2826,
+        2741
+      ],
+      "reply_shape": [
+        "0xD4C0767A:U64",
+        "0x4A41DF5F:U64",
+        "0x1780EC1F:U64",
+        "0xC56500F9:U64",
+        "0x2A6ACAAD:StringCrc",
+        "0x87E5BC62:StringCrc",
+        "0x6CD5D4F9:Packed",
+        "0xAE6EEA84:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3F71955D:Binary",
+        "0x3FA02989:Binary",
+        "0x92CD7D5B:U64",
+        "0x8C9EF2CF:U64",
+        "0x3A60FE52:U64",
+        "0x9AD3E8F7:Binary",
+        "0x61E5E2AC:U64",
+        "0x0BB02C05:F32",
+        "0xE3920695:StringCrc"
+      ],
+      "search_requests": 2,
+      "seconds_between_searches": [
+        92.24
+      ],
+      "other_requests_between_searches": {
+        "attributes/get": 2,
+        "virtualcurrency/get_consumable_info": 1,
+        "usercontent/upload": 1,
+        "strings/filter": 2,
+        "probe2k17/95c85943": 2,
+        "parkgamestatsv3/toprepplayer": 1,
+        "parkgamestatsv3/parksummary": 1,
+        "parkgamestatsv3/parkrep": 1
+      },
+      "next_non_noise_request": null,
+      "requests_after_last_search": []
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": 0,
+  "kind": "sanitized-response",
+  "source": "replacement-runtime (NOT an original-service capture)",
+  "path": "/nba/2k17/Session/update",
+  "route": "session/update",
+  "captured_at": "2026-10-05T09:44:44.226Z",
+  "body_bytes": 96,
+  "declared_fieldlist_bytes": 96,
+  "parse_status": "ok",
+  "fields": [
+    {
+      "index": 0,
+      "crc": "0x329A965F",
+      "name": null,
+      "type": "0x55C05A86",
+      "type_name": "VCDate",
+      "value": "2026-10-05T09:44:44.226Z",
+      "value_hex": "0x0000C16949C6ADC2"
+    },
+    {
+      "index": 1,
+      "crc": "0xE9824107",
+      "name": null,
+      "type": "0x55C05A86",
+      "type_name": "VCDate",
+      "value": "2026-10-05T09:44:44.226Z",
+      "value_hex": "0x0000C16949C6ADC2"
+    },
+    {
+      "index": 2,
+      "crc": "0xE3920695",
+      "name": "RESULT",
+      "type": "0x1423ADD2",
+      "type_name": "StringCrc",
+      "value": "0x504521A8",
+      "value_name": "SUCCESS"
+    },
+    {
+      "index": 3,
+      "crc": "0xDA780E45",
+      "name": "SESSION_KEY",
+      "type": "0x3D9E5089",
+      "type_name": "U64",
+      "value": null,
+      "redacted": "identity"
+    },
+    {
+      "index": 4,
+      "crc": "0x517C7ED8",
+      "name": null,
+      "type": "0x1423ADD2",
+      "type_name": "StringCrc",
+      "value": "0x8321FC23",
+      "value_name": null
+    }
+  ],
+  "data_bytes": 0,
+  "trailing_bytes": 0
+}

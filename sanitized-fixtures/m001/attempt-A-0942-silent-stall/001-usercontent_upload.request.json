@@ -1,0 +1,84 @@
+{
+  "schema_version": 0,
+  "kind": "sanitized-request",
+  "title": "nba2k17-pc",
+  "method": "PUT",
+  "path": "/nba/2k17/UserContent/upload",
+  "route": "usercontent/upload",
+  "captured_at": "2026-10-05T09:41:39.562Z",
+  "headers": {
+    "user-agent": "VISUAL_CONCEPTS_WIN64/17.0",
+    "content-type": "application/octet-stream",
+    "vcfieldlist_size": "168",
+    "content-length": "52192"
+  },
+  "body_bytes": 52192,
+  "declared_fieldlist_bytes": 168,
+  "parse_status": "ok",
+  "fields": [
+    {
+      "index": 0,
+      "crc": "0x01CAAEE8",
+      "name": "USERID",
+      "type": "0x3D9E5089",
+      "type_name": "U64",
+      "value": null,
+      "redacted": "identity"
+    },
+    {
+      "index": 1,
+      "crc": "0x28C55C06",
+      "name": "FILETYPE",
+      "type": "0x1423ADD2",
+      "type_name": "StringCrc",
+      "value": "0xCDBD175E",
+      "value_name": null
+    },
+    {
+      "index": 2,
+      "crc": "0x53D25BE9",
+      "name": "EXTRA_DATA_SIZE",
+      "type": "0x3D9E5089",
+      "type_name": "U64",
+      "value": "52024"
+    },
+    {
+      "index": 3,
+      "crc": "0x8CB84FE9",
+      "name": "GAMERTAG",
+      "type": "0x6E46752F",
+      "type_name": "String8",
+      "value": null,
+      "redacted": "identity"
+    },
+    {
+      "index": 4,
+      "crc": "0xC07F858D",
+      "name": "CATEGORY",
+      "type": "0x1423ADD2",
+      "type_name": "StringCrc",
+      "value": "0x7EE096E5",
+      "value_name": null
+    },
+    {
+      "index": 5,
+      "crc": "0xE0E7D2CE",
+      "name": "DESCRIPTION",
+      "type": "0x6E46752F",
+      "type_name": "String8",
+      "value": null,
+      "redacted": "repeats-identity-value"
+    },
+    {
+      "index": 6,
+      "crc": "0xFA387529",
+      "name": "FILENAME",
+      "type": "0x6E46752F",
+      "type_name": "String8",
+      "value": null,
+      "redacted": "repeats-identity-value"
+    }
+  ],
+  "data_bytes": 40,
+  "trailing_bytes": 52024
+}

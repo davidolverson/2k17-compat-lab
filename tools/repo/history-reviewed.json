@@ -1,0 +1,12 @@
+{
+  "about": "History findings outside the known classes that a person or agent opened, read and classified. scan-history.js treats a (path, rule) pair listed here as reviewed. Listing something here is a claim that the value was looked at, so say what it is.",
+  "reviewed": [
+    {
+      "path": "server/tests/gates.test.js",
+      "rule": "steamid64",
+      "branch": "work/deepseek-protocol-reconstruction",
+      "reviewed_at_utc": "2026-10-05T17:05:00Z",
+      "finding": "Synthetic sample in a redaction test: the platform-id prefix followed by the digits 1234567890. It sits in a list next to an example.com address and a dummy bearer token. Not a real account."
+    }
+  ]
+}

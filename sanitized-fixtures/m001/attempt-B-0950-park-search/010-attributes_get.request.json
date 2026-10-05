@@ -1,0 +1,31 @@
+{
+  "schema_version": 0,
+  "kind": "sanitized-request",
+  "title": "nba2k17-pc",
+  "method": "POST",
+  "path": "/nba/2k17/MyCareer/Attributes/get",
+  "route": "attributes/get",
+  "captured_at": "2026-10-05T09:50:27.776Z",
+  "headers": {
+    "user-agent": "VISUAL_CONCEPTS_WIN64/17.0",
+    "content-type": "application/octet-stream",
+    "vcfieldlist_size": "32",
+    "content-length": "32"
+  },
+  "body_bytes": 32,
+  "declared_fieldlist_bytes": 32,
+  "parse_status": "ok",
+  "fields": [
+    {
+      "index": 0,
+      "crc": "0xD5E5F21D",
+      "name": null,
+      "type": "0x3D9E5089",
+      "type_name": "U64",
+      "value": null,
+      "redacted": "identity"
+    }
+  ],
+  "data_bytes": 0,
+  "trailing_bytes": 0
+}
