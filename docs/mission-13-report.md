@@ -1,3 +1,5 @@
+> **Superseded in part by Mission 14 (2026-10-05):** the active compatibility run moved from the lab probe to Granite, so use `npm run summarize:routes` rather than assuming probe JSONL. Mission 14 also records that the first richer ParkSummary experiment produced no progress, weakening H1 and moving the next observation lane to H3/H4. See `docs/mission-14-report.md`.
+
 # Mission 13 — Persistence Proof + Park Experiment Loop
 
 **Date:** 2026-10-05  
@@ -71,8 +73,8 @@ This proves the local storage mechanism. It does **not** prove the game can late
 First summarize each run:
 
 ```
-npm run summarize:probe -- before.jsonl before.summary.json
-npm run summarize:probe -- after.jsonl after.summary.json
+npm run summarize:routes -- before.jsonl before.summary.json
+npm run summarize:routes -- after.jsonl after.summary.json
 ```
 
 Then:
@@ -160,9 +162,9 @@ client upload
 ```
 
 ### Park
-Run H1 first because it is the cheapest controlled experiment.
+The first richer ParkSummary experiment produced no loading progress. Mission 14 records this as evidence that **weakens H1** rather than fully disproving it.
 
-Only move to service-directory, lobby, or relay construction after a lower-cost experiment produces evidence that points there.
+The next observation lanes are H3 (Steam lobby lifecycle) and H4 (relay state), with H2 kept open. Do not build a relay/world component until observation points there.
 
 ## Security boundary
 
