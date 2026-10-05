@@ -99,7 +99,7 @@ function SanitizeField(Field, Secrets = null) {
     const Crc = Number(Field.Crc) >>> 0;
     const Out = { index: Field.index, crc: Hex32(Crc), name: NameOf(Crc), type: Field.TypeHex, type_name: Field.TypeName };
     if (IdentityCrcs.has(Crc)) return { ...Out, value: null, redacted: 'identity' };
-    if (Secrets && (typeof Field.value === 'string' || typeof Field.value === 'number') && Secrets.has(String(Field.value).toLowerCase())) {
+    if (Secrets && ['string', 'number', 'bigint'].includes(typeof Field.value) && Secrets.has(String(Field.value).toLowerCase())) {
         return { ...Out, value: null, redacted: 'repeats-identity-value' };
     }
     if (!ScalarTypes.has(Field.TypeName)) {
@@ -190,7 +190,7 @@ function CollectSecrets(Captures) {
                 const Crc = Number(Field.Crc) >>> 0;
                 const IsText = Field.TypeName === 'String8' || Field.TypeName === 'String16';
                 if (IsText && typeof Field.value === 'string') Add(Field.value);
-                if (IdentityCrcs.has(Crc) && (typeof Field.value === 'string' || typeof Field.value === 'number')) {
+                if (IdentityCrcs.has(Crc) && ['string', 'number', 'bigint'].includes(typeof Field.value)) {
                     Add(Field.value);
                     try {
                         Add(BigInt(Field.value).toString(16));
