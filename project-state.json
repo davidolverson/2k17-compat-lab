@@ -2,7 +2,7 @@
   "schema_version": 1,
   "kind": "project-state",
   "about": "Single machine-readable source of truth for project status. README and docs point here and do not restate status. Statuses: MET needs committed evidence tied to an experiment manifest; REPORTED_UNPROVEN was reported by a live session and has no manifest; NOT_MET has no qualifying evidence. Change this file only from evidence, in the same commit as the evidence or the reconciliation note that justifies it.",
-  "updated_at_utc": "2026-10-05T16:51:40Z",
+  "updated_at_utc": "2026-10-05T16:43:00Z",
   "updated_from": "docs/truth-reconciliation-2026-10-05.md",
   "milestone": {
     "id": "M001",
@@ -190,7 +190,7 @@
       "title": "No distributable runtime exists; the research runtime cannot become one",
       "class": "LEGAL",
       "owner": "human",
-      "detail": "Decision D5 settles the boundary: the current runtime is research and reference infrastructure only. Still open: a plan for an independent clean-room upnext-runtime written from sanitized contracts and evidence, or a licence or permission that covers release. See docs/license-decision.md."
+      "detail": "Decision D5 still governs the boundary. The implementation plan is now defined in docs/upnext-runtime-cleanroom-plan.md: production runtime must be independently authored from sanitized contracts/evidence or use code with licensing/permission compatible with release. The blocker remains open until such an implementation/licence path actually exists."
     },
     {
       "id": "B7",
@@ -221,6 +221,6 @@
   "tracks": {
     "A_compatibility": "PAUSED for acceptance-grade live work (B1, B3); offline analysis of sanitized evidence allowed; B2 still required",
     "B_repository_hardening": "DONE: merged into work/m001-online-foundation; main protected; private vulnerability reporting on",
-    "C_product": "UNBLOCKED for governance, platform scaffolding and clean-room runtime planning; must not depend on research-runtime code (B5)"
+    "C_product": "UNBLOCKED: platform P001 bootstrap and clean-room runtime planning are defined in docs/upnext-platform-bootstrap-plan.md and docs/upnext-runtime-cleanroom-plan.md; product work must not depend on research-runtime code (B5)."
   }
 }
