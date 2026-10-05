@@ -22,16 +22,12 @@ Treat the master spec as the product/security contract and the milestone/evidenc
 
 Do not regress these facts into guesses:
 
-- M001 is ACTIVE, not complete.
-- Login/session/update have working replacement-service behavior in the current research lineage.
-- Park bootstrap research advanced to `mmg/park/search`.
-- A successful search response has repeatedly caused the client to attempt a UDP relay connection.
-- The relay session currently terminates after roughly ten seconds in the observed experiments.
-- The next relay/session dependency is unknown.
+- The current milestone status, frontier and blockers are stated only in `project-state.json`. Read it first; do not rely on a status written into this document or any other.
 - `World/connect` and `park/create` are not established facts merely because another version/title used them.
 - M001 still requires interactive Park + restart reproduction + a second independent client + distinct internal player/session IDs + sanitized closeout evidence.
-- The public repo currently lacks the full CI/rules/governance enforcement described in the master spec.
-- The existing M001 regression is a smoke tool, not yet a strict acceptance gate.
+- Results from a client installation that is not legitimately supplied and unmodified are discovery only. Offline analysis of already captured sanitized evidence is allowed; promoting such results to FACT or using them for acceptance is not.
+- A result reported by a live session stays REPORTED_UNPROVEN until an experiment manifest ties it to committed runtime source, client and configuration.
+- The research runtime is reference infrastructure under a noncommercial licence; none of its code goes into a distributable runtime.
 
 ## Absolute constraints
 
@@ -126,9 +122,7 @@ Commit changes in coherent commits.
 
 ### Phase 2 — M001 relay investigation
 
-The only active protocol research question is:
-
-> What does the compatible 2K17 client send/expect during the evidenced UDP relay session, and what observable condition causes the roughly ten-second termination?
+The active protocol research question is the one recorded under `frontier` in `project-state.json`. Acceptance-grade live experimentation is paused while a client or runtime provenance blocker is open there.
 
 Before modifying relay behavior:
 

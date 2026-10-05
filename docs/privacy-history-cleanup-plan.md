@@ -1,8 +1,44 @@
-# Privacy history cleanup plan (not executed)
+# Privacy history cleanup plan (decided: history left intact)
 
-**Nothing in this plan has been run.** Rewriting published history is
-destructive and needs the owner's explicit authorization. This page exists so
-the decision can be made with the facts in front of it.
+**Decision, 2026-10-05 (owner, recorded on PR #2):** run a full-history scan
+first; if it finds only the known account/persona metadata and the truncated
+non-secret fingerprints, document them and leave history alone. The scan below
+found only those, so **option A applies and no history was rewritten.** Option
+B stays documented in case a later scan finds something that grants access.
+
+## Full-history scan result
+
+`node tools/repo/scan-history.js`, 2026-10-05 17:10 UTC, every blob reachable
+from the published refs (230 commits, 382 unique blobs), same rules as
+`check-forbidden.js` plus the body-digest pattern. Re-run with `--all` (local
+refs included): identical result.
+
+| Class | Blobs | Matches | Paths | Assessment |
+|---|---|---|---|---|
+| account, persona or user name | 6 | 7 | `docs/environment-audit.md`, `docs/live-status.md`, `docs/internal-domain-contracts-v0.md` | known; metadata, grants nothing |
+| truncated raw-body digest | 1 | 11 | `evidence/m001/park-search.request-comparison.json` | known; not reversible, sessions expired |
+| platform-id pattern | 1 | 1 | `server/tests/gates.test.js` (another work branch) | opened and read: synthetic sample in a redaction test; recorded in `tools/repo/history-reviewed.json` |
+
+Not found anywhere in published history: private keys or certificates, tokens
+or bearer credentials, real platform ids, session keys in URLs, personal
+filesystem paths, real email addresses, binaries, captures or archives.
+Commit messages and author fields were checked separately for the same
+patterns: zero matches; the only author addresses are the owner's public
+commit address and GitHub's no-reply address.
+
+Limits of this scan: it matches patterns and a hashed list of three private
+terms. It cannot recognise a private value that looks like ordinary text and
+is not on the list. It reads what is reachable from the fetched refs, not
+GitHub's cache of commits that were force-pushed away before today.
+
+Verdict: `ONLY_KNOWN_CLASSES`. Nothing to rotate or revoke.
+
+---
+
+The original plan follows, unchanged, for reference.
+
+Rewriting published history is destructive and needs the owner's explicit
+authorization.
 
 ## What is in public history
 
