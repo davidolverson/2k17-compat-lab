@@ -41,6 +41,26 @@ const REFERENCE_2K19_TYPES = Object.freeze({
   F32: 0xb7ea1cd0,
 });
 
+
+/*
+ * Per-constant provenance. The key set is required to match
+ * REFERENCE_2K19_TYPES exactly. Every identifier remains a cross-version
+ * reference and makes no NBA 2K17 target claim.
+ */
+const REFERENCE_2K19_TYPE_PROVENANCE = Object.freeze(
+  Object.fromEntries(
+    Object.keys(REFERENCE_2K19_TYPES).map((name) => [
+      name,
+      Object.freeze({
+        evidenceClass: 'CROSS_VERSION_REFERENCE',
+        referenceProject: 'ztpd/Granite',
+        referenceCommit: '20c3d875907498eb9e3780553a45f3c451885777',
+        targetClaim: 'NONE',
+      }),
+    ]),
+  ),
+);
+
 const TYPE_NAMES = new Map(
   Object.entries(REFERENCE_2K19_TYPES).map(([name, id]) => [id >>> 0, name]),
 );
@@ -435,6 +455,7 @@ function gunzipFieldList(buffer) {
 module.exports = {
   PROVENANCE,
   REFERENCE_2K19_TYPES,
+  REFERENCE_2K19_TYPE_PROVENANCE,
   TYPE_NAMES,
   ReferenceFieldListBuilder,
   parseFieldList,
