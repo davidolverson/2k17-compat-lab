@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const {
   PROVENANCE,
   REFERENCE_2K19_TYPES,
+  REFERENCE_2K19_TYPE_PROVENANCE,
   ReferenceFieldListBuilder,
   parseFieldList,
   tryParseFieldList,
@@ -32,6 +33,24 @@ function expectThrows(fn, pattern) {
 test('provenance is explicitly cross-version, not NBA 2K17', () => {
   assert.equal(PROVENANCE.evidenceClass, 'CROSS_VERSION_REFERENCE');
   assert.equal(PROVENANCE.targetClaim, 'NONE');
+});
+
+test('every reference type has explicit per-constant provenance', () => {
+  const typeKeys = Object.keys(REFERENCE_2K19_TYPES).sort();
+  const provenanceKeys = Object.keys(REFERENCE_2K19_TYPE_PROVENANCE).sort();
+  assert.deepEqual(provenanceKeys, typeKeys);
+
+  for (const key of typeKeys) {
+    const provenance = REFERENCE_2K19_TYPE_PROVENANCE[key];
+    assert.equal(provenance.evidenceClass, 'CROSS_VERSION_REFERENCE', key);
+    assert.equal(provenance.referenceProject, 'ztpd/Granite', key);
+    assert.equal(
+      provenance.referenceCommit,
+      '20c3d875907498eb9e3780553a45f3c451885777',
+      key,
+    );
+    assert.equal(provenance.targetClaim, 'NONE', key);
+  }
 });
 
 test('CRC32 matches the standard IEEE test vector', () => {
@@ -191,6 +210,7 @@ test('tryParseFieldList returns structured failure instead of throwing', () => {
 });
 
 require('./transport.test')({ test, assert });
+require('../server/tests/gates.test')({ test, assert });
 require('./evidence.test')({ test, assert });
 require('./public-evidence.test')({ test, assert });
 require('./cache-artifact.test')({ test, assert });
