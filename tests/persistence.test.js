@@ -94,7 +94,7 @@ module.exports = function registerPersistenceTests({ test, assert }) {
         'slot-2',
         Buffer.from('original', 'ascii'),
       );
-      fs.writeFileSync(stored.body, Buffer.from('changed!', 'ascii'));
+      fs.writeFileSync(stored.bodyPath, Buffer.from('changed!', 'ascii'));
 
       const reopened = new ByteExactContentStore(root);
       assert.throws(
