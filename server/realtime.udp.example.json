@@ -1,0 +1,6 @@
+{
+  "host": "127.0.0.1",
+  "port": 0,
+  "family": "udp4",
+  "rawDir": "server/captures/udp-raw-local"
+}
