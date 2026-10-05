@@ -1,5 +1,6 @@
 'use strict';
 
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -50,7 +51,11 @@ function parseGraniteLog(text) {
       if (!line.trim()) return;
       const parsed = parseGraniteLine(line, index);
       if (parsed) records.push(parsed);
-      else unparsed.push({ line: index + 1, text: line.slice(0, 500) });
+      else unparsed.push({
+        line: index + 1,
+        byteLength: Buffer.byteLength(line, 'utf8'),
+        sha256: crypto.createHash('sha256').update(line).digest('hex'),
+      });
     });
 
   return { records, unparsed };
