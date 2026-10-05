@@ -1,0 +1,76 @@
+{
+  "schema": "2k17-compat-lab.evidence-ledger.v1",
+  "updatedUtc": "2026-10-05T00:00:00.000Z",
+  "entries": [
+    {
+      "id": "E001",
+      "claim": "nba2k17-ws.2ksports.com is a historical NBA 2K17 web-service hostname.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://www.reddit.com/r/cryptography/comments/14why8y"
+        }
+      ],
+      "notes": "Supports hostname and PC replacement-service feasibility context; does not establish exact routes or every build."
+    },
+    {
+      "id": "E002",
+      "claim": "Port 17217 was used by a historical public NBA 2K17 private-server implementation.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "LOW_MEDIUM",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_GITHUB",
+          "locator": "THEKINGPATUBOY14/NBA-2k17-Private-Server@24e52860bdd5ea626604b80ad38358f48b039988:NBA 2K17 GameServer/Server.h"
+        }
+      ],
+      "notes": "Establishes historical significance of the port, not the complete retail-client contract."
+    },
+    {
+      "id": "E003",
+      "claim": "A 2023 NBA 2K17 PC replacement-service developer reported success using a locally trusted certificate path.",
+      "evidenceClass": "PUBLIC_2K17_SOURCE",
+      "confidence": "MEDIUM",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_WEB",
+          "locator": "https://www.reddit.com/r/cryptography/comments/14why8y"
+        }
+      ],
+      "notes": "Does not prove absence of certificate pinning for every client build."
+    },
+    {
+      "id": "E004",
+      "claim": "sanitized-fixtures/probe.66686d164ca1.sanitized.jsonl contains lab self-test traffic, not NBA 2K17 client traffic.",
+      "evidenceClass": "INSTRUMENT_SELFTEST",
+      "confidence": "HIGH",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "REPOSITORY_FILE",
+          "locator": "sanitized-fixtures/probe.66686d164ca1.sanitized.jsonl"
+        }
+      ],
+      "notes": "May validate instrument behavior only; must never promote TLS/HTTP values from this file to OBSERVED_2K17."
+    },
+    {
+      "id": "E005",
+      "claim": "Granite exposes a 16-byte big-endian field-record framing with a zero terminator and data section for NBA 2K19.",
+      "evidenceClass": "CROSS_VERSION_REFERENCE",
+      "confidence": "HIGH",
+      "status": "ACTIVE",
+      "sources": [
+        {
+          "kind": "PUBLIC_GITHUB",
+          "locator": "ztpd/Granite@20c3d875907498eb9e3780553a45f3c451885777:Granite/Server/Source/Codec/FieldList.js"
+        }
+      ],
+      "notes": "This is not evidence that NBA 2K17 uses the same framing."
+    }
+  ]
+}
