@@ -35,7 +35,10 @@ if ($SteamRoot) {
     Add-SteamRoot $steamPath
   } catch {}
 
-  Add-SteamRoot "\${env:ProgramFiles(x86)}\Steam"
+  $programFilesX86 = [Environment]::GetEnvironmentVariable("ProgramFiles(x86)")
+  if ($programFilesX86) {
+    Add-SteamRoot (Join-Path $programFilesX86 "Steam")
+  }
 }
 
 # Expand Steam library roots from libraryfolders.vdf without contacting Steam.
