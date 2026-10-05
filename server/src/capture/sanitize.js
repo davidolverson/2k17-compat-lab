@@ -20,6 +20,7 @@ const TEXT_PATTERNS = [
   [/\bBearer\s+[A-Za-z0-9._~+\/-]{8,}=*/gi, 'Bearer [REDACTED]'],
   [/\b7656119\d{10}\b/g, '[STEAMID64_REDACTED]'],
   [/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[EMAIL_REDACTED]'],
+  [/\b[0-9a-f]{32,}\b/gi, '[HEX_REDACTED]'],
   [/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g, '[JWT_REDACTED]'],
 ];
 
